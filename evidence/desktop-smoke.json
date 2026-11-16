@@ -1,0 +1,93 @@
+{
+  "kind": "real-electron-smoke",
+  "runtime": "Electron 45.3.3",
+  "checks": [
+    "renderer isolation and sandbox",
+    "real OS credential encryption",
+    "native installed catalogue includes verified executable paths",
+    "AI-disabled launcher reports Windows foreground restriction without opening duplicates",
+    "existing-window focus restriction handled honestly",
+    "application reorder persists after restart",
+    "radial menu and disabled-AI prompt",
+    "native global shortcut registration",
+    "unconfigured model failure",
+    "bundled driver status and permissions",
+    "Escape dismissal",
+    "warm menu opening through single-instance route and keyboard navigation"
+  ],
+  "showTimings": [
+    325.3799,
+    231.40950000000004,
+    63.526700000000346,
+    19.685100000000148,
+    20.42990000000009
+  ],
+  "showMeasurements": [
+    {
+      "mode": "settings",
+      "milliseconds": 325.3799
+    },
+    {
+      "mode": "menu",
+      "milliseconds": 231.40950000000004
+    },
+    {
+      "mode": "menu",
+      "milliseconds": 63.526700000000346
+    },
+    {
+      "mode": "menu",
+      "milliseconds": 19.685100000000148
+    },
+    {
+      "mode": "menu",
+      "milliseconds": 20.42990000000009
+    }
+  ],
+  "packaged": false,
+  "driver": {
+    "version": "1.3.1",
+    "protocol": "2.6",
+    "platform": "windows",
+    "permissions": {
+      "accessibility": {
+        "state": "granted"
+      },
+      "automation": {
+        "state": "not_required"
+      },
+      "screen_recording": {
+        "state": "not_required"
+      }
+    }
+  },
+  "bounds": {
+    "window": {
+      "x": 948,
+      "y": 0,
+      "width": 420,
+      "height": 420
+    },
+    "displays": [
+      {
+        "workArea": {
+          "x": 0,
+          "y": 0,
+          "width": 1536,
+          "height": 816
+        },
+        "scaleFactor": 1.25
+      },
+      {
+        "workArea": {
+          "x": 1536,
+          "y": 0,
+          "width": 2048,
+          "height": 1104
+        },
+        "scaleFactor": 1.25
+      }
+    ]
+  },
+  "result": "passed"
+}

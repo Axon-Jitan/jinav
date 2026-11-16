@@ -1,0 +1,11 @@
+node_modules/
+dist/
+out/
+.vite/
+evidence/private/
+*.log
+resources/driver/
+.env
+.env.*
+credential.bin
+*.pem
