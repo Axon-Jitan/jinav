@@ -1,0 +1,201 @@
+/* Applies jinav's neutral interaction palette and persisted wheel appearance. */
+::selection {
+  color: white;
+  background: #2c2c2c;
+}
+.setting-value {
+  color: var(--muted);
+  text-align: right;
+}
+.radial.icons-small .slot img {
+  width: 20px;
+  height: 20px;
+}
+.radial.icons-large .slot img {
+  width: 32px;
+  height: 32px;
+}
+.radial.icons-small .app-fallback {
+  font-size: 16px;
+}
+.radial.icons-large .app-fallback {
+  font-size: 24px;
+}
+.radial .slot {
+  padding: 0;
+}
+.radial.background-soft {
+  border-radius: 50%;
+  background: #f1f1efdf;
+}
+.radial.background-solid {
+  border-radius: 50%;
+  background: #f1f1ef;
+}
+/* Native select popup blue comes from Windows; use Chromium's styled picker. */
+@supports (appearance: base-select) {
+  select,
+  ::picker(select) {
+    appearance: base-select;
+  }
+  ::picker(select) {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 4px;
+    background: white;
+    color: #202124;
+    box-shadow: 0 6px 24px #0002;
+  }
+  option {
+    padding: 9px 12px;
+    border-radius: 4px;
+  }
+  option:hover,
+  option:focus,
+  option:checked {
+    color: #202124;
+    background: #e9e9e7;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  color: #eeeeec;
+  --muted: #b5b5b1;
+  --line: #484846;
+  --focus: #eeeeec;
+}
+[data-theme="dark"]
+  :is(
+    .settings-layout,
+    .panel,
+    .prompt-panel,
+    .progress-panel,
+    dialog,
+    .app-actions > div,
+    .source-selector [role="listbox"]
+  ) {
+  background: #202020;
+  color: #eeeeec;
+}
+[data-theme="dark"]
+  :is(.settings-sidebar, .preview-card, .picker-search, kbd, .ranking-note) {
+  background: #292929;
+  color: #b5b5b1;
+}
+[data-theme="dark"] :is(button, input, textarea, select) {
+  background: #292929;
+  color: #eeeeec;
+  border-color: #484846;
+}
+[data-theme="dark"]
+  :is(
+    button:hover,
+    .picker-row:hover,
+    .app-actions[open] summary,
+    .settings-sidebar nav button[aria-current="page"]
+  ) {
+  background: #414141;
+  color: #fff;
+}
+[data-theme="dark"]
+  :is(
+    .hint,
+    .section-label,
+    .preview-card,
+    .row-title,
+    .app-name,
+    .source-trigger,
+    .picker-row
+  ) {
+  color: inherit;
+}
+[data-theme="dark"] .hint,
+[data-theme="dark"] .section-label {
+  color: #b5b5b1;
+}
+[data-theme="dark"] .settings-sidebar nav button,
+[data-theme="dark"] .sidebar-status {
+  color: #b5b5b1;
+}
+[data-theme="dark"] .setting-row {
+  border-bottom-color: var(--line);
+}
+[data-theme="dark"]
+  :is(
+    .task-limits,
+    .task-limits .limits label,
+    .source-selector [role="option"] small,
+    .context-button,
+    .setup-link,
+    .verification-details
+  ) {
+  color: #b5b5b1;
+}
+[data-theme="dark"] .task-limits .limits input {
+  background: #292929;
+}
+[data-theme="dark"] :is(.error, .notice) {
+  background: #382b22;
+  color: #ffe7d5;
+  border-color: #75533b;
+}
+/* Native captions keep a light surface in both palettes. */
+[data-theme="dark"] .native-tooltip {
+  color: #202124;
+}
+[data-theme="dark"] .primary {
+  background: #eeeeec;
+  color: #202020;
+}
+[data-theme="dark"] :is(.primary:hover, .toggle input:checked + span) {
+  background: #d1d1cd;
+}
+[data-theme="dark"] .toggle input:checked + span::after {
+  background: #202020;
+}
+[data-theme="dark"] .slot {
+  background: transparent;
+}
+[data-theme="dark"] .slot:hover {
+  background: #414141;
+}
+[data-theme="dark"] .slot .gear {
+  filter: invert(1);
+}
+[data-theme="dark"] .radial.background-soft {
+  background: #363636df;
+}
+[data-theme="dark"] .radial.background-solid {
+  background: #363636;
+}
+[data-theme="dark"] select::picker(select) {
+  background: #292929;
+  color: #eeeeec;
+}
+[data-theme="dark"] :is(option:hover, option:focus, option:checked) {
+  background: #414141;
+  color: #eeeeec;
+}
+@media (forced-colors: active) {
+  :root {
+    --focus: Highlight;
+  }
+  [data-theme]
+    :is(
+      button,
+      input,
+      select,
+      dialog,
+      .settings-layout,
+      .settings-sidebar,
+      .preview-card,
+      .panel,
+      option
+    ) {
+    forced-color-adjust: auto;
+  }
+  .radial.background-soft,
+  .radial.background-solid {
+    background: Canvas;
+  }
+}

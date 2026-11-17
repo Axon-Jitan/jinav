@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { homedir } from "node:os";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { app } from "electron";
 import type { PlatformAdapter } from "../platformAdapter";
 import type { AppEntry } from "../../shared/config";
 export function linuxAdapter(isWayland: boolean): PlatformAdapter {
@@ -13,6 +14,7 @@ export function linuxAdapter(isWayland: boolean): PlatformAdapter {
       : "Linux X11 (untested)",
     isWayland,
     executableSuffix: "",
+    configureBrand: () => app.setDesktopName("jinav.desktop"),
     async discover() {
       const entries: AppEntry[] = [];
       for (const root of [

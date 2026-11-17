@@ -5,6 +5,15 @@ export interface ShortcutApi {
 }
 export class ShortcutRegistrar {
   current = "";
+  private latched = false;
+  private tracksRelease = false;
+  trackRelease(enabled: boolean) {
+    this.tracksRelease = enabled;
+    this.latched = false;
+  }
+  release() {
+    this.latched = false;
+  }
   constructor(
     private readonly api: ShortcutApi,
     private readonly callback: () => void,
@@ -12,7 +21,14 @@ export class ShortcutRegistrar {
   replace(next: string): boolean {
     if (next === this.current) return true;
     try {
-      if (!this.api.register(next, this.callback)) return false;
+      if (
+        !this.api.register(next, () => {
+          if (this.tracksRelease && this.latched) return;
+          this.latched = true;
+          this.callback();
+        })
+      )
+        return false;
     } catch {
       return false;
     }

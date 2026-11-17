@@ -1,6 +1,7 @@
 // Displays run state with continuously available cancellation.
 import type { TaskState } from "../shared/task";
 import { strings as s } from "./strings";
+import { BrandLogo } from "./BrandLogo";
 export function ProgressPanel({
   task,
   physical,
@@ -13,6 +14,7 @@ export function ProgressPanel({
   const active = [
     "planning",
     "running",
+    "paused",
     "waiting_for_approval",
     "stopping",
   ].includes(task.phase);
@@ -21,12 +23,16 @@ export function ProgressPanel({
     if (!result.ok) onError(result.error);
   };
   return (
-    <section className="panel">
-      <p className="eyebrow">{s.progress}</p>
+    <section className="panel progress-panel">
+      <header className="ask-header">
+        <BrandLogo />
+        <strong>{s.ask}</strong>
+      </header>
       <h1>{task.phase.replaceAll("_", " ")}</h1>
       <p role="status" aria-live="polite">
         {task.message}
       </p>
+      {task.application && <p className="hint">{task.application}</p>}
       <p className="hint">{task.step > 0 ? `${task.step}` : ""}</p>
       {physical && active && <p className="physical">{s.physical}</p>}
       {task.phase === "waiting_for_approval" && (
@@ -44,6 +50,17 @@ export function ProgressPanel({
       >
         {s.stop}
       </button>
+      {active && task.phase !== "stopping" && (
+        <button
+          onClick={() =>
+            void window.jinav.pauseTask(task.phase !== "paused").then((r) => {
+              if (!r.ok) onError(r.error);
+            })
+          }
+        >
+          {task.phase === "paused" ? s.resume : s.pause}
+        </button>
+      )}
       <p className="hint">{s.stopHint}</p>
     </section>
   );

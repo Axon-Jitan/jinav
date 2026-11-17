@@ -4,12 +4,14 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { homedir } from "node:os";
 import { join } from "node:path";
+import { app } from "electron";
 import type { PlatformAdapter } from "../platformAdapter";
 export function macosAdapter(): PlatformAdapter {
   return {
     label: "macOS (untested)",
     isWayland: false,
     executableSuffix: "",
+    configureBrand: (icon) => app.dock?.setIcon(icon),
     async discover() {
       const entries = [];
       for (const root of [

@@ -2,6 +2,7 @@
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { windowApi } from "./windowApi";
 import { z } from "zod";
+import { focusWindow } from "./focusWindow";
 const windowsSchema = z.array(
   z.object({
     id: z.string(),
@@ -15,7 +16,7 @@ const script = `$ErrorActionPreference='Stop'; $ProgressPreference='SilentlyCont
 while($line=[Console]::ReadLine()) { try { $r=ConvertFrom-Json $line;
  if($r.kind -eq 'inventory') { $result=@{ok=$true;data=@([JinavWindows]::Inventory())} }
  elseif($r.kind -eq 'foreground') { $result=@{ok=$true;data=[JinavWindows]::Current()} }
- elseif($r.kind -eq 'focus' -and $r.id -match '^\\d+$') { $match=@([JinavWindows]::Inventory()) | Where-Object {$_.id -eq $r.id -and $_.app -eq $r.app}; if($match){$h=[IntPtr][long]$r.id; [void][JinavWindows]::ShowWindowAsync($h,9); [void][JinavWindows]::SetForegroundWindow($h); $result=@{ok=([JinavWindows]::GetForegroundWindow() -eq $h)}}else{$result=@{ok=$false}} }
+ elseif($r.kind -eq 'focus' -and $r.id -match '^\\d+$') { $match=@([JinavWindows]::Inventory()) | Where-Object {$_.id -eq $r.id -and $_.app -eq $r.app}; if($match){$h=[IntPtr][long]$r.id; $result=@{ok=([JinavWindows]::Focus($h))}}else{$result=@{ok=$false}} }
  else { $result=@{ok=$false} }; [Console]::Out.WriteLine((ConvertTo-Json -InputObject $result -Depth 6 -Compress))
  } catch { [Console]::Out.WriteLine('{"ok":false}') }
 }`;
@@ -90,9 +91,11 @@ export class WindowService {
     });
     return this.ready;
   }
-  private request(command: object): Promise<unknown> {
+  private request(command: object, signal?: AbortSignal): Promise<unknown> {
     const result = this.queue.then(async () => {
+      signal?.throwIfAborted();
       await this.ensureReady();
+      signal?.throwIfAborted();
       return new Promise<unknown>((resolve, reject) => {
         const finish = (error?: Error, value?: unknown) => {
           clearTimeout(timer);
@@ -133,11 +136,11 @@ export class WindowService {
       .parse(await this.request({ kind: "foreground" }));
     return result.data ?? undefined;
   }
-  async focus(id: string, app: string) {
+  async focus(id: string, app: string, signal?: AbortSignal) {
     const result = z
       .object({ ok: z.boolean() })
-      .parse(await this.request({ kind: "focus", id, app }));
-    if (!result.ok)
+      .parse(await this.request({ kind: "focus", id, app }, signal));
+    if (!result.ok && !(await focusWindow(id, app, signal)))
       throw Error(
         "Windows refused foreground focus. Select the existing window from the taskbar; jinav did not open a duplicate.",
       );

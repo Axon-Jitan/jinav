@@ -1,18 +1,19 @@
 // Provides persistent desktop entry points through a native tray menu.
-import { Tray, Menu, nativeImage, app } from "electron";
-import { join } from "node:path";
+import { Tray, Menu, nativeImage } from "electron";
+import { appIconPath } from "./appIconPath";
 export function trayIcon(
   open: () => void,
   settings: () => void,
   stop: () => void,
   quit: () => void,
+  imagePath?: string,
 ) {
-  const path = app.isPackaged
-    ? join(process.resourcesPath, "icon.png")
-    : join(app.getAppPath(), "resources/icon.png");
-  const icon = nativeImage.createFromPath(path);
+  const icon = nativeImage.createFromPath(imagePath ?? appIconPath());
   if (icon.isEmpty()) throw Error("Tray icon asset is missing. Rebuild jinav.");
-  const tray = new Tray(icon);
+  // Preserve the native ICO's size representations instead of forcing 16px PNG.
+  const tray = new Tray(
+    imagePath ?? icon.resize({ width: 16, height: 16, quality: "best" }),
+  );
   tray.setToolTip("jinav");
   tray.setContextMenu(
     Menu.buildFromTemplate([

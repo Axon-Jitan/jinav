@@ -1,0 +1,16 @@
+{
+  "kind": "real-many-apps-wheel",
+  "packaged": false,
+  "result": "passed",
+  "checks": [
+    {
+      "savedLauncherApps": 137,
+      "savedPermissionApps": 137,
+      "pages": 23,
+      "previewLabelsOutside": true,
+      "lastPageReachable": true,
+      "brandedExecutable": true,
+      "aiDisabled": true
+    }
+  ]
+}

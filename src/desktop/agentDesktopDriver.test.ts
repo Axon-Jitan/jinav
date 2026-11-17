@@ -4,6 +4,57 @@ import { cliProcess } from "./cliProcess";
 import { AgentDesktopDriver } from "./agentDesktopDriver";
 vi.mock("./cliProcess", () => ({ cliProcess: vi.fn() }));
 afterEach(() => vi.resetAllMocks());
+it("uses a focus-only headed command for the approved app window", async () => {
+  vi.mocked(cliProcess).mockResolvedValue({
+    version: "2.6",
+    ok: true,
+    data: {},
+  });
+  const driver = new AgentDesktopDriver("driver", "session");
+  await driver.focusWindow(
+    { id: "w-55", app: "CalculatorApp.exe" },
+    new AbortController().signal,
+  );
+  expect(cliProcess).toHaveBeenCalledWith(
+    "driver",
+    [
+      "focus-window",
+      "--window-id",
+      "w-55",
+      "--app",
+      "CalculatorApp.exe",
+      "--headed",
+      "--session",
+      "session",
+    ],
+    expect.any(AbortSignal),
+    undefined,
+  );
+});
+it("reads hosted app identity from list-windows rather than the frame process", async () => {
+  vi.mocked(cliProcess).mockResolvedValue({
+    version: "2.6",
+    ok: true,
+    data: [
+      {
+        id: "w-55",
+        app_name: "CalculatorApp.exe",
+        title: "Calculator",
+        is_focused: true,
+      },
+    ],
+  });
+  const driver = new AgentDesktopDriver("driver", "session");
+  expect(
+    await driver.listWindows("calculatorapp.exe", new AbortController().signal),
+  ).toEqual([{ id: "w-55", app: "CalculatorApp.exe", title: "Calculator" }]);
+  expect(cliProcess).toHaveBeenCalledWith(
+    "driver",
+    ["list-windows", "--app", "calculatorapp.exe", "--session", "session"],
+    expect.any(AbortSignal),
+    undefined,
+  );
+});
 const target = { id: "w-1", app: "notepad.exe", title: "Disposable editor" };
 it("extracts ref_id and refuses incomplete or foreign snapshots", async () => {
   vi.mocked(cliProcess).mockResolvedValue({

@@ -6,6 +6,8 @@ import { actionSchema, type TaskRequest, type TaskState } from "../shared/task";
 import type { Config } from "../shared/config";
 import { actionPolicy } from "./actionPolicy";
 import { observationFingerprint } from "./observationFingerprint";
+import type { TaskApplicationLauncher } from "../shared/taskApplications";
+import { PauseGate } from "./pauseGate";
 export interface RunOptions {
   runId: string;
   request: TaskRequest;
@@ -21,9 +23,12 @@ export class TaskRunner {
       details: string,
       signal: AbortSignal,
     ) => Promise<boolean>,
+    private readonly applications?: TaskApplicationLauncher,
+    private readonly pauseGate = new PauseGate(),
   ) {}
   async run(options: RunOptions, signal: AbortSignal) {
     const { runId, request, config } = options;
+    let target = request.target;
     const goal =
       request.goal +
       (options.verificationFile
@@ -36,23 +41,60 @@ export class TaskRunner {
       phase: TaskState["phase"],
       message: string,
       approval?: string,
-    ) => this.emit({ runId, phase, message, step, approval });
+    ) =>
+      this.emit({
+        runId,
+        phase,
+        message,
+        step,
+        approval,
+        application: target?.app,
+      });
     const history: string[] = [];
     let tokens = 0,
       repeated = 0,
       previous = "";
     const timeout = AbortSignal.timeout(config.maxSeconds * 1000);
     const active = AbortSignal.any([signal, timeout]);
-    try {
-      state("planning", "Observing the selected window");
-      last = await this.driver.observe(request.target, active);
+    const observe = async (window: NonNullable<TaskRequest["target"]>) => {
+      await this.pauseGate.wait(active);
       active.throwIfAborted();
+      return this.driver.observe(window, active);
+    };
+    try {
+      state(
+        "planning",
+        target
+          ? "Observing the selected window"
+          : "Choosing an application for your task",
+      );
+      await this.pauseGate.wait(active);
+      last = target
+        ? await observe(target)
+        : {
+            text: JSON.stringify({
+              state:
+                "No application window selected. Use launch-app to open the application required by the goal.",
+            }),
+            refs: new Set<string>(),
+          };
+      active.throwIfAborted();
+      let observedGeneration = this.pauseGate.generation;
       for (step = 1; step <= config.maxSteps; step++) {
         active.throwIfAborted();
+        await this.pauseGate.wait(active);
+        if (target && observedGeneration !== this.pauseGate.generation)
+          last = await observe(target);
+        observedGeneration = this.pauseGate.generation;
+        const generation = this.pauseGate.generation;
         state("planning", "Choosing the next action");
         const response = await this.model.next(
           goal,
-          last.text,
+          JSON.stringify({
+            installedApplications: this.applications?.apps ?? [],
+            selectedWindow: target ?? null,
+            UI_CONTENT: last.text,
+          }),
           history.slice(-8),
           active,
         );
@@ -60,6 +102,13 @@ export class TaskRunner {
         tokens += response.tokens;
         if (tokens > config.maxTokens)
           throw Error("Model token budget reached.");
+        await this.pauseGate.wait(active);
+        if (generation !== this.pauseGate.generation) {
+          history.push(
+            "User interrupted. Discarded the proposed action; fresh observation required.",
+          );
+          continue;
+        }
         const action = actionSchema.parse(response.action);
         const fingerprint = JSON.stringify({
           ...action,
@@ -79,7 +128,44 @@ export class TaskRunner {
           );
           return;
         }
+        if (action.kind === "launch-app") {
+          const app = this.applications?.apps.find(
+            (entry) => entry.id === action.appId,
+          );
+          if (!app || !this.applications)
+            throw Error(
+              "Requested application is outside the installed-app catalogue.",
+            );
+          const details = `Allow jinav to open ${app.name} or bring its existing window to the front for this task? ${action.reason}`;
+          state(
+            "waiting_for_approval",
+            details,
+            JSON.stringify({
+              appId: app.id,
+              application: app.name,
+              action: "Open application",
+              reason: action.reason,
+            }),
+          );
+          if (!(await this.approve(details, active)))
+            throw Error("Application launch declined.");
+          active.throwIfAborted();
+          await this.pauseGate.wait(active);
+          if (generation !== this.pauseGate.generation) continue;
+          state("running", `Opening ${app.name}`);
+          uncertain = true;
+          target = await this.applications.open(action.appId, active);
+          active.throwIfAborted();
+          last = await observe(target);
+          active.throwIfAborted();
+          uncertain = false;
+          history.push(
+            `Opened ${app.name}; its window identity and fresh accessibility observation were verified.`,
+          );
+          continue;
+        }
         if (action.kind === "complete") {
+          if (!target) throw Error("No application window has been verified.");
           if (!last.text.includes(action.evidence))
             throw Error(
               "Completion evidence is absent from the current observation.",
@@ -108,12 +194,9 @@ export class TaskRunner {
           );
           return;
         }
-        const policy = actionPolicy(
-          action,
-          last,
-          request.target,
-          config.physicalInput,
-        );
+        if (!target)
+          throw Error("Open an application before attempting desktop actions.");
+        const policy = actionPolicy(action, last, target, config.physicalInput);
         if (policy.approval) {
           state(
             "waiting_for_approval",
@@ -126,23 +209,26 @@ export class TaskRunner {
           // The CLI re-identifies this exact ref before dispatch; stale or ambiguous refs fail closed.
         }
         state("running", action.reason);
+        await this.pauseGate.wait(active);
+        if (generation !== this.pauseGate.generation) continue;
         uncertain = true;
         const before = observationFingerprint(last.text);
         let outcome;
         try {
           outcome = await this.driver.execute(
             action,
-            request.target,
+            target,
             config.physicalInput,
             active,
           );
         } catch (error) {
           active.throwIfAborted();
-          last = await this.driver.observe(request.target, active);
+          last = await observe(target);
           throw error;
         }
         active.throwIfAborted();
-        last = await this.driver.observe(request.target, active);
+        await this.pauseGate.wait(active);
+        last = await observe(target);
         active.throwIfAborted();
         uncertain = false;
         if (!outcome.ok) {

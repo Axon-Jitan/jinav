@@ -1,0 +1,8 @@
+{
+  "kind": "real-packaged-branding",
+  "result": "passed",
+  "checks": [
+    "new multi-resolution logo embedded in Windows executable; packaged native PNG matches canonical derivative",
+    "real Settings brand, preview, radial Ask slot and prompt load supplied SVG; old letter glyph absent; AI stays unconfigured"
+  ]
+}

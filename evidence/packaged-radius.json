@@ -1,0 +1,20 @@
+{
+  "kind": "real-wheel-radius",
+  "packaged": true,
+  "result": "passed",
+  "checks": [
+    {
+      "radius": 58,
+      "size": 160,
+      "targets": 44,
+      "tooltipOutside": true
+    },
+    {
+      "radius": 110,
+      "size": 264,
+      "targets": 44,
+      "tooltipOutside": true
+    }
+  ],
+  "persistenceAndFrozenSession": true
+}

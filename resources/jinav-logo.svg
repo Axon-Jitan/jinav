@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 200 200" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">jinav logo</title>
+  <desc id="desc">A softly sculpted white pointer on a faceted charcoal rounded-square tile. Editable vector recreation of the supplied logo; transparent outside the tile.</desc>
+  <defs>
+    <linearGradient id="rim" x1="74" y1="3" x2="113" y2="198" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#252525"/>
+      <stop offset=".48" stop-color="#181818"/>
+      <stop offset="1" stop-color="#080808"/>
+    </linearGradient>
+    <linearGradient id="surface" x1="88" y1="12" x2="112" y2="188" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#292929"/>
+      <stop offset=".55" stop-color="#222222"/>
+      <stop offset="1" stop-color="#1B1B1B"/>
+    </linearGradient>
+    <linearGradient id="upperFacet" x1="130" y1="12" x2="165" y2="88" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#323232"/>
+      <stop offset="1" stop-color="#252525"/>
+    </linearGradient>
+    <linearGradient id="lowerFacet" x1="75" y1="124" x2="29" y2="181" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#282828"/>
+      <stop offset="1" stop-color="#202020"/>
+    </linearGradient>
+    <linearGradient id="porcelain" x1="70" y1="75" x2="118" y2="151" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#C7C7C7"/>
+      <stop offset=".37" stop-color="#EEEEEE"/>
+      <stop offset=".66" stop-color="#D3D3D3"/>
+      <stop offset="1" stop-color="#999999"/>
+    </linearGradient>
+    <linearGradient id="leftWing" x1="40" y1="97" x2="137" y2="52" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#BEBEBE"/>
+      <stop offset=".48" stop-color="#E0E0E0"/>
+      <stop offset="1" stop-color="#F7F7F7"/>
+    </linearGradient>
+    <linearGradient id="rightWing" x1="143" y1="58" x2="106" y2="162" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EEEEEE"/>
+      <stop offset=".48" stop-color="#CDCDCD"/>
+      <stop offset="1" stop-color="#939393"/>
+    </linearGradient>
+    <linearGradient id="foldLight" x1="81" y1="118" x2="144" y2="54" gradientUnits="userSpaceOnUse">
+      <stop stop-color="white" stop-opacity=".13"/>
+      <stop offset=".35" stop-color="white" stop-opacity=".46"/>
+      <stop offset=".8" stop-color="white" stop-opacity=".15"/>
+      <stop offset="1" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="edgeLight" x1="100" y1="2" x2="100" y2="105" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#777777" stop-opacity=".14"/>
+      <stop offset="1" stop-color="#777777" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="shadow" x="-35%" y="-25%" width="180%" height="180%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="5.5" result="soft"/>
+      <feOffset in="soft" dx="3" dy="9" result="offset"/>
+      <feFlood flood-color="#000000" flood-opacity=".62"/>
+      <feComposite in2="offset" operator="in" result="cast"/>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.25" result="contact"/>
+      <feOffset in="contact" dx=".5" dy="2" result="contactOffset"/>
+      <feFlood flood-color="#000000" flood-opacity=".35"/>
+      <feComposite in2="contactOffset" operator="in" result="contactShadow"/>
+      <feMerge><feMergeNode in="cast"/><feMergeNode in="contactShadow"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softFold" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="2.8"/>
+    </filter>
+    <filter id="foldGlow" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="1.8"/>
+    </filter>
+    <path id="tileOutline" d="M52 2H146C177.8 2 197 21.4 197 53V147C197 179.1 178.2 198 146 198H52C19.8 198 1 178.8 1 147V53C1 21.4 20.2 2 52 2Z"/>
+    <path id="tileInset" d="M53 11H145C171.5 11 187 27.3 187 54V146C187 173.5 171.6 189 145 189H53C25.8 189 10 173 10 146V54C10 27.3 26 11 53 11Z"/>
+    <path id="pointer" d="M135.7 46.7C144.8 43.5 151.8 48.9 150.4 58.3C149.9 62 148.3 66.5 146.6 71.4L118.4 151.8C115.8 159.3 112.5 163.8 106.8 163.6C101.2 163.4 98.1 159.5 95.3 154.2L79.3 123C77.7 119.7 76.3 118 72.9 116.3L42.5 100C35.6 96.4 32.7 93.4 33.2 88.1C33.7 82.7 37.8 79.1 44.2 76.9L135.7 46.7Z"/>
+    <clipPath id="tileClip"><use href="#tileInset"/></clipPath>
+    <clipPath id="pointerClip"><use href="#pointer"/></clipPath>
+  </defs>
+  <g id="app-tile">
+    <use href="#tileOutline" fill="url(#rim)"/>
+    <use href="#tileOutline" stroke="url(#edgeLight)" stroke-width=".6"/>
+    <use href="#tileInset" fill="url(#surface)"/>
+    <g id="charcoal-facets" clip-path="url(#tileClip)">
+      <path d="M95 11H143L165 31L132 54Z" fill="url(#upperFacet)"/>
+      <path d="M143 11H188V40L166 59L149 32Z" fill="#303030" opacity=".55"/>
+      <path d="M176 16L188 26V52L167 33Z" fill="#353535" opacity=".3"/>
+      <path d="M10 58L55 84L96 11H53C26 11 10 28 10 54Z" fill="#222222" opacity=".3"/>
+      <path d="M10 59L68 94L47 119L10 94Z" fill="#2A2A2A" opacity=".7"/>
+      <path d="M10 95L67 124L10 166Z" fill="#151515" opacity=".4"/>
+      <path d="M10 154L99 79L126 103L31 189H10Z" fill="url(#lowerFacet)" opacity=".72"/>
+      <path d="M20 184L100 115L126 142L74 189H31Z" fill="#161616" opacity=".48"/>
+      <path d="M154 43L187 79V113L133 67Z" fill="#292929" opacity=".55"/>
+      <path d="M137 98L187 146V163L113 128Z" fill="#2A2A2A" opacity=".35"/>
+      <path d="M121 145L187 163V190H151Z" fill="#252525" opacity=".42"/>
+    </g>
+  </g>
+  <g id="white-pointer" filter="url(#shadow)">
+    <use href="#pointer" fill="url(#porcelain)"/>
+    <g clip-path="url(#pointerClip)">
+      <path d="M25 74L139 35L159 47L143 62C124 78 96 105 76 124L26 103Z" fill="url(#leftWing)"/>
+      <path d="M147 49C138 66 103 100 77 120L93 170H124L161 60Z" fill="url(#rightWing)" filter="url(#softFold)"/>
+      <path d="M78 119C95 101 125 73 145 53" stroke="url(#foldLight)" stroke-width="5" stroke-linecap="round" filter="url(#foldGlow)"/>
+    </g>
+  </g>
+</svg>

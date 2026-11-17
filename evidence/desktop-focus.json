@@ -1,0 +1,19 @@
+{
+  "kind": "real-wheel-focus",
+  "packaged": false,
+  "result": "passed",
+  "checks": [
+    {
+      "attempt": 1,
+      "beforeCount": 1,
+      "afterCount": 1,
+      "foregroundVerified": true
+    },
+    {
+      "attempt": 2,
+      "beforeCount": 1,
+      "afterCount": 1,
+      "foregroundVerified": true
+    }
+  ]
+}

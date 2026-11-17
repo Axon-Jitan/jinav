@@ -4,8 +4,11 @@ import type { Bootstrap, Result } from "../shared/bridge";
 import type { TaskState, TargetWindow } from "../shared/task";
 export function useJinav() {
   const [bootstrap, setBootstrap] = useState<Bootstrap>();
-  const [view, setView] = useState("menu");
+  const [view, setView] = useState(
+    new URLSearchParams(location.search).get("view") ?? "menu",
+  );
   const [error, setError] = useState("");
+  const [session, setSession] = useState("");
   const [task, setTask] = useState<TaskState>({
     runId: "",
     phase: "idle",
@@ -37,11 +40,16 @@ export function useJinav() {
       if (state) setTask(state);
     });
     const offTask = window.jinav.onTask(setTask);
-    const offView = window.jinav.onView((next) => {
-      setView(next);
-      setChooser(undefined);
-      setError("");
-      void reload();
+    const offView = window.jinav.onView((next, token) => {
+      void window.jinav.bootstrap().then((value) => {
+        const data = result(value);
+        if (!data) return;
+        setBootstrap(data);
+        setView(next);
+        setSession(token ?? "");
+        setChooser(undefined);
+        setError("");
+      });
     });
     return () => {
       offTask();
@@ -50,12 +58,22 @@ export function useJinav() {
   }, [reload, result]);
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && view !== "progress")
-        void window.jinav.hide();
+      if (event.key !== "Escape" || event.defaultPrevented) return;
+      if (
+        [
+          "planning",
+          "running",
+          "paused",
+          "waiting_for_approval",
+          "stopping",
+        ].includes(task.phase)
+      )
+        void window.jinav.stopTask();
+      else void window.jinav.hide();
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [view]);
+  }, [view, task.phase]);
   const launch = async (id: string, windowId?: string) => {
     setError("");
     const windows = result(await window.jinav.launch(id, windowId));
@@ -64,6 +82,7 @@ export function useJinav() {
   };
   return {
     bootstrap,
+    session,
     view,
     setView,
     error,

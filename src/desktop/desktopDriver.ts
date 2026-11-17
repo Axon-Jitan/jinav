@@ -11,6 +11,12 @@ export interface Delivery {
   safeRetry: boolean;
 }
 export interface DesktopDriver {
+  listWindows?(
+    application: string,
+    signal: AbortSignal,
+  ): Promise<TargetWindow[]>;
+  allWindows?(signal: AbortSignal): Promise<TargetWindow[]>;
+  focusWindow?(target: TargetWindow, signal: AbortSignal): Promise<void>;
   status(signal: AbortSignal): Promise<unknown>;
   observe(target: TargetWindow, signal: AbortSignal): Promise<Observation>;
   execute(

@@ -1,0 +1,8 @@
+{
+  "kind": "real-app-access-settings",
+  "packaged": true,
+  "result": "passed",
+  "checks": [
+    "default selected scope; native app selection; cancel does not grant; explicit all-app approval; narrower list preserved; AI/cloud/physical permissions remain off; restart persistence; honest task-app-only observation label"
+  ]
+}

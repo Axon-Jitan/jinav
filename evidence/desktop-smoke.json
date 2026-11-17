@@ -1,93 +1,73 @@
 {
-  "kind": "real-electron-smoke",
-  "runtime": "Electron 45.3.3",
+  "kind": "real-electron-approved-design",
+  "platform": "win32",
+  "os": "10.0.26200",
+  "arch": "x64",
+  "packaged": false,
   "checks": [
-    "renderer isolation and sandbox",
-    "real OS credential encryption",
-    "native installed catalogue includes verified executable paths",
-    "AI-disabled launcher reports Windows foreground restriction without opening duplicates",
-    "existing-window focus restriction handled honestly",
-    "application reorder persists after restart",
-    "radial menu and disabled-AI prompt",
-    "native global shortcut registration",
-    "unconfigured model failure",
-    "bundled driver status and permissions",
-    "Escape dismissal",
-    "warm menu opening through single-instance route and keyboard navigation"
-  ],
-  "showTimings": [
-    325.3799,
-    231.40950000000004,
-    63.526700000000346,
-    19.685100000000148,
-    20.42990000000009
+    "all three real windows isolated and sandboxed",
+    "real Windows discovery excludes missing shortcut executable targets",
+    "native maximize/restore/minimize controls and minimized-window reopening",
+    "real Windows native event/input subscription ready",
+    "actual OS shortcut conflict preserves prior working registration",
+    "coworker settings contain no provider connection or API-key fields",
+    "Try menu hides the Settings preview, showing only the real desktop wheel",
+    "native Windows compositor capture over disposable two-colour backdrop",
+    "fixed 160-DIP geometry, eight slots, neutral initial focus, keyboard clockwise navigation, Escape returns to Settings, transparent renderer",
+    "Try menu focus-loss dismissal does not restore Settings over another app",
+    "Ask visibility leaves reserved hole; manual order persists; session app list stays frozen during preference changes"
   ],
   "showMeasurements": [
     {
-      "mode": "settings",
-      "milliseconds": 325.3799
+      "level": "info",
+      "event": "launcher-show",
+      "mode": "menu",
+      "milliseconds": 245.2520000000004
     },
     {
+      "level": "info",
+      "event": "launcher-show",
       "mode": "menu",
-      "milliseconds": 231.40950000000004
+      "milliseconds": 43.71730000000025
     },
     {
+      "level": "info",
+      "event": "launcher-show",
       "mode": "menu",
-      "milliseconds": 63.526700000000346
+      "milliseconds": 41.12609999999768
     },
     {
+      "level": "info",
+      "event": "launcher-show",
       "mode": "menu",
-      "milliseconds": 19.685100000000148
-    },
-    {
-      "mode": "menu",
-      "milliseconds": 20.42990000000009
+      "milliseconds": 35.91029999999955
     }
   ],
-  "packaged": false,
-  "driver": {
-    "version": "1.3.1",
-    "protocol": "2.6",
-    "platform": "windows",
-    "permissions": {
-      "accessibility": {
-        "state": "granted"
-      },
-      "automation": {
-        "state": "not_required"
-      },
-      "screen_recording": {
-        "state": "not_required"
-      }
-    }
-  },
-  "bounds": {
-    "window": {
-      "x": 948,
-      "y": 0,
-      "width": 420,
-      "height": 420
-    },
+  "screenshots": [
+    "settings-menu.png",
+    "settings-general.png",
+    "settings-appearance.png",
+    "settings-ask.png",
+    "wheel-ready.png",
+    "wheel-native-transparency.png",
+    "wheel-settings-focus.png"
+  ],
+  "environment": {
+    "electron": "45.3.3",
+    "appVersion": "0.1.0",
     "displays": [
       {
+        "id": 3730654666,
+        "scaleFactor": 1.25,
         "workArea": {
           "x": 0,
           "y": 0,
           "width": 1536,
           "height": 816
-        },
-        "scaleFactor": 1.25
-      },
-      {
-        "workArea": {
-          "x": 1536,
-          "y": 0,
-          "width": 2048,
-          "height": 1104
-        },
-        "scaleFactor": 1.25
+        }
       }
     ]
   },
-  "result": "passed"
+  "result": "failed",
+  "failure": "expect(locator).toHaveAttribute(expected) failed\n\nLocator: locator('.picker-list')\nExpected: \"false\"\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toHaveAttribute\" locator('.picker-list') with timeout 45000ms\n  - waiting for locator('.picker-list')\n    9 × locator resolved to <div aria-busy=\"true\" class=\"picker-list\">…</div>\n      - unexpected value \"true\"\n"
 }

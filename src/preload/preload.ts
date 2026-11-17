@@ -1,6 +1,6 @@
 // Exposes named renderer capabilities without leaking Electron primitives.
 import { contextBridge, ipcRenderer } from "electron";
-import { channels, type Bridge } from "../shared/bridge";
+import { channels, type Bridge, type TooltipContent } from "../shared/bridge";
 import type { TaskState } from "../shared/task";
 const bridge: Bridge = {
   bootstrap: () => ipcRenderer.invoke(channels.bootstrap),
@@ -12,6 +12,22 @@ const bridge: Bridge = {
   windows: () => ipcRenderer.invoke(channels.windows),
   hide: () => ipcRenderer.invoke(channels.hide),
   settings: () => ipcRenderer.invoke(channels.settings),
+  settingsWindow: (command) =>
+    ipcRenderer.invoke(channels.settingsWindow, command),
+  prompt: () => ipcRenderer.invoke(channels.prompt),
+  tryMenu: () => ipcRenderer.invoke(channels.tryMenu),
+  wheelApps: () => ipcRenderer.invoke(channels.wheelApps),
+  clearAppHistory: () => ipcRenderer.invoke(channels.clearAppHistory),
+  pauseTask: (paused) => ipcRenderer.invoke(channels.pauseTask, paused),
+  tooltip: (id) => ipcRenderer.invoke(channels.tooltip, id),
+  onTooltip: (callback) => {
+    const listener = (
+      _event: Electron.IpcRendererEvent,
+      content: TooltipContent,
+    ) => callback(content);
+    ipcRenderer.on(channels.tooltipText, listener);
+    return () => ipcRenderer.removeListener(channels.tooltipText, listener);
+  },
   saveKey: (key) => ipcRenderer.invoke(channels.saveKey, key),
   testModel: () => ipcRenderer.invoke(channels.testModel),
   driverStatus: () => ipcRenderer.invoke(channels.driverStatus),
@@ -29,10 +45,14 @@ const bridge: Bridge = {
   chooseVerificationFile: () =>
     ipcRenderer.invoke(channels.chooseVerificationFile),
   onView: (callback) => {
-    const listener = (_event: Electron.IpcRendererEvent, view: string) =>
-      callback(view);
+    const listener = (
+      _event: Electron.IpcRendererEvent,
+      view: string,
+      session?: string,
+    ) => callback(view, session);
     ipcRenderer.on(channels.view, listener);
     return () => ipcRenderer.removeListener(channels.view, listener);
   },
+  viewReady: (session) => ipcRenderer.invoke(channels.viewReady, session),
 };
 contextBridge.exposeInMainWorld("jinav", bridge);

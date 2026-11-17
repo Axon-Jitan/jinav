@@ -4,6 +4,23 @@ import { actionSchema } from "../shared/task";
 import { actionPolicy } from "./actionPolicy";
 const target = { id: "w-1", app: "notepad.exe", title: "Disposable editor" };
 const observation = { text: "", refs: new Set(["@fresh:e1"]) };
+it("accepts only opaque app IDs without launch arguments", () => {
+  expect(
+    actionSchema.safeParse({
+      kind: "launch-app",
+      appId: "C:/app.exe",
+      reason: "Open",
+    }).success,
+  ).toBe(false);
+  expect(
+    actionSchema.safeParse({
+      kind: "launch-app",
+      appId: "app-0",
+      reason: "Open",
+      arguments: ["script"],
+    }).success,
+  ).toBe(false);
+});
 it("rejects arbitrary tools and extra arguments", () => {
   expect(
     actionSchema.safeParse({ kind: "shell", command: "anything" }).success,

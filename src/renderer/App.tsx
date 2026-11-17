@@ -6,18 +6,22 @@ import { SettingsPanel } from "./SettingsPanel";
 import { PromptPanel } from "./PromptPanel";
 import { ProgressPanel } from "./ProgressPanel";
 import { strings as s } from "./strings";
+import { useTheme } from "./useTheme";
 export function App() {
   const state = useJinav();
+  useTheme(state.bootstrap?.config.theme);
   const hasActiveTask = [
     "planning",
     "running",
+    "paused",
     "waiting_for_approval",
     "stopping",
   ].includes(state.task.phase);
   const shell = useRef<HTMLElement>(null);
   useLayoutEffect(() => {
     if (shell.current) shell.current.scrollTop = 0;
-  }, [state.view]);
+    if (state.session) void window.jinav.viewReady(state.session);
+  }, [state.view, state.session]);
   if (!state.bootstrap)
     return (
       <main className="shell">
@@ -29,14 +33,6 @@ export function App() {
       ref={shell}
       className={`shell ${state.view === "menu" ? "menu-shell" : ""} ${state.bootstrap.config.reducedMotion ? "reduced-motion" : ""}`}
     >
-      {state.view !== "menu" && (
-        <header>
-          <strong>{s.name}</strong>
-          <button onClick={() => void window.jinav.hide()} aria-label={s.close}>
-            ×
-          </button>
-        </header>
-      )}
       {state.error && (
         <div className="error" role="alert">
           {state.error}
@@ -69,7 +65,7 @@ export function App() {
           onError={state.setError}
         />
       ) : state.view === "prompt" ? (
-        <PromptPanel config={state.bootstrap.config} onError={state.setError} />
+        <PromptPanel bootstrap={state.bootstrap} onError={state.setError} />
       ) : state.view === "progress" ? (
         <ProgressPanel
           task={state.task}
@@ -78,9 +74,14 @@ export function App() {
         />
       ) : (
         <RadialMenu
+          key={state.session}
           config={state.bootstrap.config}
+          apps={state.bootstrap.wheelApps ?? state.bootstrap.config.apps}
+          radius={
+            state.bootstrap.wheelRadius ?? state.bootstrap.config.menuRadius
+          }
           launch={(id) => void state.launch(id)}
-          ask={() => state.setView("prompt")}
+          ask={() => void window.jinav.prompt()}
         />
       )}
     </main>

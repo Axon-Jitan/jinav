@@ -1,0 +1,95 @@
+{
+  "kind": "real-native-wheel-labels",
+  "packaged": true,
+  "result": "passed",
+  "checks": [
+    {
+      "name": "Ask jinav",
+      "outsideWheel": true,
+      "textFits": true,
+      "caption": {
+        "padding": 21.60000228881836,
+        "centered": true,
+        "arrow": true,
+        "side": "top"
+      }
+    },
+    {
+      "name": "Intelr Rapid Storage Technology Application",
+      "outsideWheel": true,
+      "textFits": true,
+      "caption": {
+        "padding": 21.600021362304688,
+        "centered": true,
+        "arrow": true,
+        "side": "right"
+      }
+    },
+    {
+      "name": "Add a new dco-win virtual network adapter",
+      "outsideWheel": true,
+      "textFits": true,
+      "caption": {
+        "padding": 21.600006103515625,
+        "centered": true,
+        "arrow": true,
+        "side": "right"
+      }
+    },
+    {
+      "name": "Settings",
+      "outsideWheel": true,
+      "textFits": true,
+      "caption": {
+        "padding": 21.60000228881836,
+        "centered": true,
+        "arrow": true,
+        "side": "right"
+      }
+    },
+    {
+      "name": "Intel(R) Management and Security Status",
+      "outsideWheel": true,
+      "textFits": true,
+      "caption": {
+        "padding": 21.599990844726562,
+        "centered": true,
+        "arrow": true,
+        "side": "bottom"
+      }
+    },
+    {
+      "name": "Microsoft Intune Management Extension",
+      "outsideWheel": true,
+      "textFits": true,
+      "caption": {
+        "padding": 21.599990844726562,
+        "centered": true,
+        "arrow": true,
+        "side": "left"
+      }
+    },
+    {
+      "name": "Skype for Business Recording Manager",
+      "outsideWheel": true,
+      "textFits": true,
+      "caption": {
+        "padding": 21.599990844726562,
+        "centered": true,
+        "arrow": true,
+        "side": "left"
+      }
+    },
+    {
+      "name": "64-bit Data Source Administrator",
+      "outsideWheel": true,
+      "textFits": true,
+      "caption": {
+        "padding": 21.599990844726562,
+        "centered": true,
+        "arrow": true,
+        "side": "left"
+      }
+    }
+  ]
+}

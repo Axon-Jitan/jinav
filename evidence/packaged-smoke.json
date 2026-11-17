@@ -1,67 +1,59 @@
 {
-  "kind": "real-electron-smoke",
-  "runtime": "Electron 45.3.3",
-  "checks": [
-    "renderer isolation and sandbox",
-    "real OS credential encryption",
-    "native installed catalogue includes verified executable paths",
-    "AI-disabled launcher reports Windows foreground restriction without opening duplicates",
-    "existing editor focus or native window chooser",
-    "application reorder persists after restart",
-    "radial menu and disabled-AI prompt",
-    "native global shortcut registration",
-    "unconfigured model failure",
-    "bundled driver status and permissions",
-    "packaged driver architecture and SHA-256 integrity",
-    "Escape dismissal",
-    "warm menu opening through single-instance route and keyboard navigation"
-  ],
-  "showTimings": [],
-  "showMeasurements": [],
+  "kind": "real-electron-approved-design",
+  "platform": "win32",
+  "os": "10.0.26200",
+  "arch": "x64",
   "packaged": true,
-  "driver": {
-    "version": "1.3.1",
-    "protocol": "2.6",
-    "platform": "windows",
-    "permissions": {
-      "accessibility": {
-        "state": "granted"
-      },
-      "automation": {
-        "state": "not_required"
-      },
-      "screen_recording": {
-        "state": "not_required"
-      }
-    }
-  },
-  "bounds": {
-    "window": {
-      "x": 728,
-      "y": 264,
-      "width": 420,
-      "height": 420
-    },
+  "checks": [
+    "all three real windows isolated and sandboxed",
+    "real Windows discovery excludes missing shortcut executable targets",
+    "native maximize/restore/minimize controls and minimized-window reopening",
+    "real Windows native event/input subscription ready",
+    "actual OS shortcut conflict preserves prior working registration",
+    "coworker settings contain no provider connection or API-key fields",
+    "Try menu hides the Settings preview, showing only the real desktop wheel",
+    "native Windows compositor capture over disposable two-colour backdrop",
+    "fixed 160-DIP geometry, eight slots, neutral initial focus, keyboard clockwise navigation, Escape returns to Settings, transparent renderer",
+    "Try menu focus-loss dismissal does not restore Settings over another app",
+    "Ask visibility leaves reserved hole; manual order persists; session app list stays frozen during preference changes",
+    "redesigned installed-app picker: system tools hidden by default, searchable apps, removable selected chips, no changes before save, Escape cancellation and six-app cap",
+    "running/recent source controls, read-only derived view, history-clear confirmation, manual list preserved across modes",
+    "Ask opens compact prompt without model; Run stays disabled; real unconfigured provider failure",
+    "Windows focus restriction reported without opening duplicate Notepad windows",
+    "restart preserves reordered manual list and source; credentials excluded from preferences"
+  ],
+  "showMeasurements": [],
+  "screenshots": [
+    "settings-menu.png",
+    "settings-general.png",
+    "settings-appearance.png",
+    "settings-ask.png",
+    "wheel-ready.png",
+    "wheel-native-transparency.png",
+    "wheel-settings-focus.png",
+    "add-app.png",
+    "ask-disconnected.png"
+  ],
+  "environment": {
+    "electron": "45.3.3",
+    "appVersion": "0.1.0",
     "displays": [
       {
+        "id": 3730654666,
+        "scaleFactor": 1.25,
         "workArea": {
           "x": 0,
           "y": 0,
           "width": 1536,
           "height": 816
-        },
-        "scaleFactor": 1.25
-      },
-      {
-        "workArea": {
-          "x": 1536,
-          "y": 0,
-          "width": 2048,
-          "height": 1104
-        },
-        "scaleFactor": 1.25
+        }
       }
     ]
+  },
+  "nativeEditor": {
+    "result": "Windows refused foreground focus. Select the existing window from the taskbar; jinav did not open a duplicate.",
+    "windowsBefore": 1,
+    "windowsAfter": 1
   },
   "result": "passed"
 }

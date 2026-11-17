@@ -1,0 +1,11 @@
+{
+  "date": "2026-11-17",
+  "kind": "native-task-app-launch",
+  "modelUsed": false,
+  "application": "Calculator",
+  "process": "CalculatorApp.exe",
+  "ambiguousWindows": 2,
+  "duplicateLaunches": 0,
+  "outcome": "ambiguous-existing-windows-refused",
+  "result": "passed"
+}

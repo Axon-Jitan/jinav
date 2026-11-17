@@ -1,64 +1,112 @@
-// Renders the task's goal and authorized target selection.
-import type { Config } from "../shared/config";
+// Collects a task without observing UI content before explicit submission.
+import { useState } from "react";
+import type { Bootstrap } from "../shared/bridge";
 import { strings as s } from "./strings";
-import { usePrompt } from "./usePrompt";
+import type { TargetWindow } from "../shared/task";
+import { ContextPicker } from "./ContextPicker";
+import { BrandLogo } from "./BrandLogo";
 export function PromptPanel({
-  config,
+  bootstrap,
   onError,
 }: {
-  config: Config;
+  bootstrap: Bootstrap;
   onError: (message: string) => void;
 }) {
-  const state = usePrompt(onError);
+  const [goal, setGoal] = useState("");
+  const [target, setTarget] = useState<TargetWindow | undefined>(
+    bootstrap.origin,
+  );
+  const [picking, setPicking] = useState(false);
+  const [output, setOutput] = useState("");
+  const c = bootstrap.config;
+  const targetAllowed =
+    !target ||
+    c.appAccess === "all" ||
+    c.allowedApps.some(
+      (e) =>
+        e.path.split(/[\\/]/).at(-1)?.toLowerCase() ===
+        target.app.toLowerCase(),
+    );
+  const ready =
+    c.aiEnabled &&
+    (bootstrap.modelConnected || bootstrap.modelProvisioned) &&
+    !bootstrap.desktopUnavailable &&
+    c.cloudConsent &&
+    (c.appAccess === "all" || c.allowedApps.length > 0) &&
+    targetAllowed &&
+    (!c.pauseOnUserInput || bootstrap.inputMonitoring);
   return (
-    <section className="panel">
-      <p className="eyebrow">{s.ask}</p>
-      <h1>{s.prompt}</h1>
-      <label>
-        {s.context}
-        <select
-          value={state.target}
-          onChange={(e) => state.setTarget(e.target.value)}
-        >
-          <option value="">{s.windows}</option>
-          {state.windows.map((w) => (
-            <option key={w.id} value={w.id}>
-              {w.app} — {w.title}
-            </option>
-          ))}
-        </select>
-      </label>
-      <button className="subtle" onClick={() => void state.refresh()}>
-        {s.refresh}
-      </button>
-      <p className="hint">{s.contextHint}</p>
+    <section className="prompt-panel">
+      <header className="ask-header">
+        <BrandLogo />
+        <strong>{s.ask}</strong>
+        <button aria-label={s.close} onClick={() => void window.jinav.hide()}>
+          ×
+        </button>
+      </header>
       <textarea
         autoFocus
-        rows={4}
-        value={state.goal}
-        onChange={(e) => state.setGoal(e.target.value)}
-        placeholder={s.goalPlaceholder}
-        maxLength={8000}
         aria-label={s.prompt}
+        placeholder={s.prompt}
+        value={goal}
+        onChange={(e) => setGoal(e.target.value)}
+        maxLength={8000}
       />
-      <button className="subtle" onClick={() => void state.chooseOutput()}>
-        {s.chooseOutput}
-      </button>
-      {state.output && (
-        <p className="hint">
-          {s.output}: {state.output}
-        </p>
+      <div className="prompt-actions">
+        <button
+          className="context-button"
+          title={s.context}
+          onClick={() => setPicking(true)}
+        >
+          {target?.app ?? s.noContext}
+        </button>
+        <button
+          className="primary"
+          disabled={!ready || !goal.trim()}
+          onClick={() =>
+            void window.jinav
+              .startTask({
+                goal,
+                target,
+                verificationFile: output || undefined,
+              })
+              .then((r) => {
+                if (!r.ok) onError(r.error);
+              })
+          }
+        >
+          {s.run}
+        </button>
+      </div>
+      {!ready && (
+        <button
+          className="text-button setup-link"
+          onClick={() => void window.jinav.settings()}
+        >
+          {s.setup}
+        </button>
       )}
-      <p className="hint">{s.cloud}</p>
-      {config.physicalInput && <p className="physical">{s.physical}</p>}
-      {!config.aiEnabled && <p role="status">{s.disabled}</p>}
-      <button
-        className="primary"
-        disabled={!config.aiEnabled || !state.goal.trim() || !state.target}
-        onClick={() => void state.submit()}
-      >
-        {s.submit}
-      </button>
+      <details className="verification-details">
+        <summary>{s.output}</summary>
+        <button
+          onClick={() =>
+            void window.jinav.chooseVerificationFile().then((r) => {
+              if (r.ok) setOutput(r.value);
+              else onError(r.error);
+            })
+          }
+        >
+          {output || s.chooseOutput}
+        </button>
+      </details>
+      {picking && (
+        <ContextPicker
+          config={c}
+          onChoose={setTarget}
+          onClose={() => setPicking(false)}
+          onError={onError}
+        />
+      )}
     </section>
   );
 }

@@ -31,6 +31,63 @@ export class AgentDesktopDriver implements DesktopDriver {
   async status(signal: AbortSignal) {
     return this.run(["status"], signal);
   }
+  async allWindows(signal: AbortSignal) {
+    const result = await this.run(["list-windows"], signal);
+    if (!result.ok)
+      throw Error(
+        `Window inventory refused: ${result.error?.code ?? "UNKNOWN"}`,
+      );
+    return z
+      .array(
+        z.object({ id: z.string(), app_name: z.string(), title: z.string() }),
+      )
+      .parse(result.data)
+      .map((window) => ({
+        id: window.id,
+        app: window.app_name,
+        title: window.title,
+      }));
+  }
+  async focusWindow(target: { id: string; app: string }, signal: AbortSignal) {
+    const result = await this.run(
+      [
+        "focus-window",
+        "--window-id",
+        target.id,
+        "--app",
+        target.app,
+        "--headed",
+      ],
+      signal,
+    );
+    if (!result.ok)
+      throw Error(
+        `Windows could not focus the approved application (${result.error?.code ?? "UNKNOWN"}). Select its window manually.`,
+      );
+  }
+  async listWindows(application: string, signal: AbortSignal) {
+    const result = await this.run(
+      ["list-windows", "--app", application],
+      signal,
+    );
+    if (!result.ok)
+      throw Error(
+        `Application window inventory refused: ${result.error?.code ?? "UNKNOWN"}`,
+      );
+    return z
+      .array(
+        z.object({ id: z.string(), app_name: z.string(), title: z.string() }),
+      )
+      .parse(result.data)
+      .filter(
+        (window) => window.app_name.toLowerCase() === application.toLowerCase(),
+      )
+      .map((window) => ({
+        id: window.id,
+        app: window.app_name,
+        title: window.title,
+      }));
+  }
   async observe(
     target: Parameters<DesktopDriver["observe"]>[0],
     signal: AbortSignal,

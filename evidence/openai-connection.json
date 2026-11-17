@@ -1,0 +1,13 @@
+{
+  "kind": "real-openai-connection-test",
+  "testedAt": "2026-11-17T04:35:52.372Z",
+  "provider": "openai",
+  "model": "gpt-4.1-mini",
+  "storedCredentialDecrypted": true,
+  "structuredToolCallVerified": true,
+  "tokens": 603,
+  "authenticationStatus": 200,
+  "desktopContentSent": false,
+  "credentialStorage": "Windows OS-protected safeStorage",
+  "credentialInSource": false
+}

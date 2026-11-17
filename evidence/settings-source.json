@@ -1,0 +1,10 @@
+{
+  "kind": "real-settings-ui",
+  "packaged": false,
+  "result": "passed",
+  "checks": [
+    "General activation choices, Start quietly and real global shortcut replacement save successfully",
+    "All icon sizes, background styles, hidden/hover labels, above/below captions, reduced motion and light/dark/live system theme affect the rendered UI",
+    "Preferences persist across actual app restart; mandatory security policies are plain text; AI stays disabled"
+  ]
+}

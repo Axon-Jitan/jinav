@@ -9,6 +9,8 @@ import type { AppCatalogue } from "./appCatalogue";
 import type { ShortcutRegistrar } from "./shortcutRegistrar";
 import type { LauncherWindow } from "./launcherWindow";
 import type { PlatformAdapter } from "../platform/platformAdapter";
+import { taskPermissions } from "../shared/appAccess";
+import { appRuntime } from "./appRuntime";
 export function launcherIpc(
   register: (
     channel: string,
@@ -19,21 +21,27 @@ export function launcherIpc(
   shortcuts: ShortcutRegistrar,
   launcher: LauncherWindow,
   platform: PlatformAdapter,
+  onPermissionsChanged: () => void = () => {},
 ) {
-  register(channels.discover, async () => catalogue.discover());
+  register(channels.discover, async () => catalogue.discover(true));
   register(channels.manualApp, async () => {
-    const result = await dialog.showOpenDialog(launcher.window, {
-      title: "Choose an installed application",
-      properties: ["openFile"],
-      filters: [
-        {
-          name: "Applications",
-          extensions: platform.executableSuffix
-            ? ["exe", "lnk"]
-            : ["app", "desktop"],
-        },
-      ],
-    });
+    const result = await dialog.showOpenDialog(
+      launcher.settings.window.isVisible()
+        ? launcher.settings.window
+        : launcher.window,
+      {
+        title: "Choose an installed application",
+        properties: ["openFile"],
+        filters: [
+          {
+            name: "Applications",
+            extensions: platform.executableSuffix
+              ? ["exe", "lnk"]
+              : ["app", "desktop"],
+          },
+        ],
+      },
+    );
     const path = result.filePaths[0];
     if (result.canceled || !path) return null;
     const allowed = platform.executableSuffix
@@ -51,55 +59,118 @@ export function launcherIpc(
     catalogue.entries.push(entry);
     return entry;
   });
-  register(channels.saveConfig, async (value) => {
+  const saveConfig = async (value: unknown) => {
     const next = configSchema.parse(value);
-    for (const entry of next.apps) {
+    if (
+      store.managedModel &&
+      (next.provider !== store.config.provider ||
+        next.model !== store.config.model ||
+        next.endpoint !== store.config.endpoint)
+    )
+      throw Error("Model settings are managed by IT.");
+    for (const entry of [...next.apps, ...next.allowedApps]) {
       if (
         !catalogue.entries.some(
           (e) => e.id === entry.id && e.path === entry.path,
         ) &&
-        !store.config.apps.some(
+        ![...store.config.apps, ...store.config.allowedApps].some(
           (e) => e.id === entry.id && e.path === entry.path,
         )
       )
         throw Error("Select applications from the native picker.");
     }
     const previous = store.config;
+    if (
+      next.model !== previous.model ||
+      next.provider !== previous.provider ||
+      next.endpoint !== previous.endpoint ||
+      next.cloudConsent !== previous.cloudConsent
+    )
+      store.modelConnected = false;
     if (!shortcuts.replace(next.shortcut))
       throw Error(
         "Shortcut unavailable. The previous working shortcut is retained; choose another combination or use the tray.",
       );
     try {
       next.apps = await Promise.all(next.apps.map((e) => catalogue.icon(e)));
+      if (next.launchOnLogin !== previous.launchOnLogin)
+        app.setLoginItemSettings({
+          openAtLogin: next.launchOnLogin,
+          args: appRuntime().development
+            ? [app.getAppPath(), "--background"]
+            : ["--background"],
+        });
+      if (taskPermissions(previous) !== taskPermissions(next))
+        onPermissionsChanged();
       await store.save(next);
     } catch (error) {
       shortcuts.replace(previous.shortcut);
+      if (next.launchOnLogin !== previous.launchOnLogin) {
+        try {
+          app.setLoginItemSettings({
+            openAtLogin: previous.launchOnLogin,
+            args: appRuntime().development
+              ? [app.getAppPath(), "--background"]
+              : ["--background"],
+          });
+        } catch {
+          store.notice =
+            "Startup preferences could not be restored. Check Windows startup settings.";
+        }
+      }
       throw error;
     }
-    app.setLoginItemSettings({ openAtLogin: next.launchOnLogin });
     return "Settings saved";
+  };
+  let writes: Promise<unknown> = Promise.resolve();
+  register(channels.saveConfig, (value) => {
+    const next = writes.then(() => saveConfig(value));
+    writes = next.catch(() => {
+      /* Caller receives the failure. */
+    });
+    return next;
   });
   register(channels.launch, async (value) => {
     const { id, windowId } = z
       .object({ id: z.string().max(2048), windowId: z.string().optional() })
       .strict()
       .parse(value);
-    const entry = store.config.apps.find((e) => e.id === id);
+    const entry =
+      launcher.wheelApps.find((e) => e.id === id) ??
+      store.config.apps.find((e) => e.id === id);
     if (!entry)
       throw Error("Application is not configured. Select it in settings.");
-    const windows = await catalogue.launch(entry, windowId);
+    let windows;
+    try {
+      windows = await catalogue.launch(entry, windowId);
+    } catch (error) {
+      store.notice =
+        error instanceof Error
+          ? error.message
+          : "Application launch failed. Repair its shortcut in Settings.";
+      await launcher.show("settings");
+      throw error;
+    }
     if (windows.length === 0) launcher.window.hide();
     return windows;
   });
-  register(channels.windows, async () =>
-    (await platform.windows())
-      .sort(
-        (a, b) =>
-          Number(b.id === launcher.origin?.id) -
-          Number(a.id === launcher.origin?.id),
-      )
-      .filter((w) => !/^jinav|electron\.exe$/i.test(w.app)),
-  );
-  register(channels.hide, () => launcher.window.hide());
+  register(channels.hide, () => {
+    if (launcher.settings.window.isFocused()) launcher.settings.window.hide();
+    else launcher.dismiss();
+  });
   register(channels.settings, () => launcher.show("settings"));
+  register(channels.settingsWindow, (value) =>
+    launcher.settings.control(
+      z.enum(["state", "minimize", "maximize", "close"]).parse(value),
+    ),
+  );
+  register(channels.viewReady, (value) =>
+    launcher.viewReady(z.string().uuid().parse(value)),
+  );
+  register(channels.prompt, () => launcher.show("prompt"));
+  register(channels.tryMenu, () => launcher.tryMenu());
+  register(channels.tooltip, (value) =>
+    launcher.label(z.string().max(2048).nullable().parse(value)),
+  );
+  register(channels.wheelApps, () => launcher.resolveApps());
 }

@@ -3,6 +3,13 @@ import { z } from "zod";
 export const actionSchema = z.discriminatedUnion("kind", [
   z
     .object({
+      kind: z.literal("launch-app"),
+      appId: z.string().regex(/^app-\d+$/),
+      reason: z.string().min(1).max(300),
+    })
+    .strict(),
+  z
+    .object({
       kind: z.literal("click"),
       ref: z.string().regex(/^@[a-zA-Z0-9_-]+:e\d+$/),
       reason: z.string().min(1).max(300),
@@ -53,6 +60,7 @@ export type TaskPhase =
   | "idle"
   | "planning"
   | "running"
+  | "paused"
   | "waiting_for_approval"
   | "stopping"
   | "completed"
@@ -64,21 +72,23 @@ export interface TaskState {
   message: string;
   step: number;
   approval?: string;
+  application?: string;
 }
 export interface TargetWindow {
   id: string;
   app: string;
   title: string;
 }
+export const targetWindowSchema = z.object({
+  id: z.string().min(1).max(100),
+  app: z.string().min(1).max(2048),
+  title: z.string().max(1000),
+});
 export const taskRequestSchema = z
   .object({
     goal: z.string().min(1).max(8000),
     verificationFile: z.string().max(4096).optional(),
-    target: z.object({
-      id: z.string().min(1).max(100),
-      app: z.string().min(1).max(2048),
-      title: z.string().max(1000),
-    }),
+    target: targetWindowSchema.optional(),
   })
   .strict();
 export type TaskRequest = z.infer<typeof taskRequestSchema>;

@@ -5,6 +5,44 @@ import type { ModelProvider } from "../ai/modelProvider";
 import type { DesktopDriver } from "../desktop/desktopDriver";
 import { TaskRunner } from "./taskRunner";
 import { defaultConfig } from "../shared/config";
+import type { TaskApplicationLauncher } from "../shared/taskApplications";
+import { PauseGate } from "./pauseGate";
+it("discards an interrupted proposal and obtains fresh refs before resuming", async () => {
+  const f = fixture();
+  const gate = new PauseGate();
+  let finish: ((value: { action: Action; tokens: number }) => void) | undefined;
+  f.model.next = vi
+    .fn()
+    .mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    )
+    .mockResolvedValue({
+      action: { kind: "complete", evidence: "checklist" },
+      tokens: 10,
+    });
+  const runner = new TaskRunner(
+    f.driver,
+    f.model,
+    (s) => f.states.push(s),
+    async () => true,
+    undefined,
+    gate,
+  );
+  const running = runner.run(options, new AbortController().signal);
+  await vi.waitFor(() => expect(f.model.next).toHaveBeenCalledOnce());
+  gate.set(true);
+  finish?.({ action: write, tokens: 10 });
+  await Promise.resolve();
+  expect(f.driver.execute).not.toHaveBeenCalled();
+  gate.set(false);
+  await running;
+  expect(f.driver.execute).not.toHaveBeenCalled();
+  expect(f.driver.observe).toHaveBeenCalledTimes(2);
+  expect(f.states.at(-1)?.phase).toBe("completed");
+});
 const options = {
   runId: "test",
   request: {
@@ -134,4 +172,111 @@ it("cancels approval without dispatch", async () => {
   await runner.run(options, controller.signal);
   expect(f.driver.execute).not.toHaveBeenCalled();
   expect(f.states.at(-1)?.phase).toBe("cancelled");
+});
+it("opens a model-selected installed app before obtaining its first UI observation", async () => {
+  const f = fixture([
+    { kind: "launch-app", appId: "app-0", reason: "Open the editor" },
+    { kind: "complete", evidence: "checklist" },
+  ]);
+  const applications: TaskApplicationLauncher = {
+    apps: [{ id: "app-0", name: "Editor" }],
+    open: vi.fn().mockResolvedValue(options.request.target),
+  };
+  const approve = vi.fn().mockResolvedValue(true);
+  const runner = new TaskRunner(
+    f.driver,
+    f.model,
+    (s) => f.states.push(s),
+    approve,
+    applications,
+  );
+  await runner.run(
+    { ...options, request: { goal: "Open Editor" } },
+    new AbortController().signal,
+  );
+  expect(applications.open).toHaveBeenCalledExactlyOnceWith(
+    "app-0",
+    expect.any(AbortSignal),
+  );
+  expect(approve).toHaveBeenCalled();
+  expect(f.driver.observe).toHaveBeenCalledExactlyOnceWith(
+    options.request.target,
+    expect.any(AbortSignal),
+  );
+  expect(f.states.at(-1)?.phase).toBe("completed");
+});
+it("does not launch when application approval is declined", async () => {
+  const f = fixture([{ kind: "launch-app", appId: "app-0", reason: "Open" }]);
+  const applications: TaskApplicationLauncher = {
+    apps: [{ id: "app-0", name: "Editor" }],
+    open: vi.fn(),
+  };
+  const runner = new TaskRunner(
+    f.driver,
+    f.model,
+    (s) => f.states.push(s),
+    async () => false,
+    applications,
+  );
+  await runner.run(
+    { ...options, request: { goal: "Open" } },
+    new AbortController().signal,
+  );
+  expect(applications.open).not.toHaveBeenCalled();
+  expect(f.driver.observe).not.toHaveBeenCalled();
+  expect(f.states.at(-1)?.phase).toBe("failed");
+});
+it("rejects a model launch outside its discovered catalogue", async () => {
+  const f = fixture([{ kind: "launch-app", appId: "app-999", reason: "Open" }]);
+  const applications: TaskApplicationLauncher = {
+    apps: [{ id: "app-0", name: "Editor" }],
+    open: vi.fn(),
+  };
+  const runner = new TaskRunner(
+    f.driver,
+    f.model,
+    (s) => f.states.push(s),
+    async () => true,
+    applications,
+  );
+  await runner.run(
+    { ...options, request: { goal: "Open" } },
+    new AbortController().signal,
+  );
+  expect(applications.open).not.toHaveBeenCalled();
+  expect(f.states.at(-1)?.message).toContain("outside");
+});
+it("ignores a late app-launch reply after Stop", async () => {
+  const f = fixture([{ kind: "launch-app", appId: "app-0", reason: "Open" }]);
+  const controller = new AbortController();
+  const applications: TaskApplicationLauncher = {
+    apps: [{ id: "app-0", name: "Editor" }],
+    open: vi.fn(async () => {
+      controller.abort();
+      return options.request.target;
+    }),
+  };
+  const runner = new TaskRunner(
+    f.driver,
+    f.model,
+    (s) => f.states.push(s),
+    async () => true,
+    applications,
+  );
+  await runner.run(
+    { ...options, request: { goal: "Open" } },
+    controller.signal,
+  );
+  expect(f.driver.observe).not.toHaveBeenCalled();
+  expect(f.states.at(-1)?.phase).toBe("cancelled");
+  expect(f.states.at(-1)?.message).toContain("may have happened");
+});
+it("does not allow UI actions before an app has been selected", async () => {
+  const f = fixture();
+  await f.runner.run(
+    { ...options, request: { goal: "Write" } },
+    new AbortController().signal,
+  );
+  expect(f.driver.execute).not.toHaveBeenCalled();
+  expect(f.states.at(-1)?.message).toContain("Open an application");
 });

@@ -1,0 +1,11 @@
+{
+  "kind": "real-windows-native-tray",
+  "result": "passed",
+  "destroyed": false,
+  "bounds": {
+    "x": 1154,
+    "y": 816,
+    "width": 33,
+    "height": 48
+  }
+}

@@ -3,9 +3,12 @@ dist/
 out/
 .vite/
 evidence/private/
+evidence/screenshots/
+evidence/icons/
 *.log
 resources/driver/
 .env
 .env.*
 credential.bin
+managed-model.json
 *.pem

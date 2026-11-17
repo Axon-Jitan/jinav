@@ -5,7 +5,10 @@ export const logger = {
       JSON.stringify({ level: "info", event, ...fields }) + "\n",
     );
   },
-  error(event: "startup", message: string) {
+  error(
+    event: "startup" | "usage-save" | "focus-restore-refused",
+    message: string,
+  ) {
     process.stderr.write(
       JSON.stringify({ level: "error", event, message }) + "\n",
     );
