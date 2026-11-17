@@ -623,6 +623,28 @@ dialog::backdrop {
   font-weight: 600;
   margin-bottom: 20px;
 }
+.shortcut-recording {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 18px 0 12px;
+}
+.shortcut-recording span {
+  color: var(--muted);
+  font-size: 12px;
+}
+.shortcut-recording button {
+  min-height: 44px;
+  flex-shrink: 0;
+}
+.shortcut-error {
+  color: #a13b24;
+  margin: 12px 0;
+}
+[data-theme="dark"] .shortcut-error {
+  color: #ffb49f;
+}
 .picker-header {
   display: flex;
   align-items: flex-start;

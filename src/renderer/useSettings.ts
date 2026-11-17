@@ -12,24 +12,29 @@ export function useSettings(
   const locked = useRef(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const update = async (patch: Partial<Config>) => {
     if (locked.current) return false;
     locked.current = true;
     setBusy(true);
     setMessage("");
+    setError("");
     try {
       const next = { ...current.current, ...patch };
       const result = await window.jinav.saveConfig(next);
       if (!result.ok) {
+        setError(result.error);
         onError(result.error);
         return false;
       }
       current.current = next;
       setConfig(next);
       setMessage(s.saved);
+      onError("");
       await onSaved();
       return true;
     } catch (error) {
+      setError(error instanceof Error ? error.message : s.settingsSaveError);
       onError(error instanceof Error ? error.message : s.settingsSaveError);
       return false;
     } finally {
@@ -37,6 +42,6 @@ export function useSettings(
       setBusy(false);
     }
   };
-  return { config, busy, message, update, onError };
+  return { config, busy, message, error, update, onError };
 }
 export type SettingsState = ReturnType<typeof useSettings>;

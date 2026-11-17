@@ -7,6 +7,15 @@ const bridge: Bridge = {
   discover: () => ipcRenderer.invoke(channels.discover),
   manualApp: () => ipcRenderer.invoke(channels.manualApp),
   saveConfig: (config) => ipcRenderer.invoke(channels.saveConfig, config),
+  shortcutCapture: (enabled) =>
+    ipcRenderer.invoke(channels.shortcutCapture, enabled),
+  onShortcutRecorded: (callback) => {
+    const listener = (_event: Electron.IpcRendererEvent, value: string) =>
+      callback(value);
+    ipcRenderer.on(channels.shortcutRecorded, listener);
+    return () =>
+      ipcRenderer.removeListener(channels.shortcutRecorded, listener);
+  },
   launch: (id, windowId) =>
     ipcRenderer.invoke(channels.launch, { id, windowId }),
   windows: () => ipcRenderer.invoke(channels.windows),

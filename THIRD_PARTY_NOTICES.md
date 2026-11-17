@@ -7,3 +7,5 @@ jinav includes unmodified agent-desktop 1.3.1 native executables from Vercel Lab
 Bundled JavaScript includes React 19.3.1, React DOM 19.3.1 and scheduler (MIT), plus Zod 4.6.7 (MIT). Their copyright notices and complete licences are retained in resources/licenses. Electron 45.3.3 is MIT licensed; Electron's Chromium and other third-party notices ship in the packaged runtime's LICENSE and LICENSES.chromium.html. Build/test tooling is development-only and remains identified by the lockfile.
 
 No licence for jinav's own source has been selected by its owner. `private: true` and `UNLICENSED` in package metadata prevent accidental npm publication; they do not select an open-source licence.
+
+Windows MSI generation uses Electron Forge maker-wix 8.0.1 and electron-wix-msi (pinned by package-lock.json). Its generated launcher stub is MIT licensed, copyright (c) 2017 Felix Rieseberg; the complete notice is retained in `resources/licenses/electron-wix-msi-MIT.txt`. The pinned WiX 3.14.1 compiler is a local build tool and is not bundled in the application.

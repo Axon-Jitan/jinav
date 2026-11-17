@@ -119,6 +119,8 @@ export const strings = {
   darkTheme: "Dark",
   alwaysRequired: "Always required",
   settingsSaveError: "Settings could not be saved. Please try again.",
+  teamTestNotice:
+    "Team test build · Uses a shared test API key. Anyone with the installer can extract it. Provider charges apply to the shared account; access ends when the key is revoked. Only use approved test data.",
   toggleStyle: "Press to toggle",
   startup: "Startup",
   launchSignIn: "Launch when I sign in",
@@ -129,6 +131,12 @@ export const strings = {
   activate: "Open selected item",
   dismiss: "Close menu / Stop active task",
   shortcutCapture: "Press your new shortcut",
+  shortcutListening: "Listening for a key combination…",
+  shortcutType: "Type instead",
+  shortcutRecord: "Record keys",
+  shortcutManualHint:
+    "Type a combination such as Ctrl+Alt+J. Some shortcuts are reserved by Windows or other apps.",
+  shortcutInvalid: "Enter a modifier and a key, for example Ctrl+Alt+J.",
   shortcutHint:
     "Use Ctrl, Alt, Shift or Meta with a key. Application-local conflicts may still require a different combination.",
   iconSize: "Icon size",

@@ -121,6 +121,7 @@ else
         desktopReady: store.desktopReady,
         desktopUnavailable: store.desktopUnavailable,
         modelProvisioned: !!secrets.get() && !store.modelProvisioningBlocked,
+        teamTestBuild: store.teamTestBuild,
       }));
       register(channels.clearAppHistory, () => usage.clear());
       launcherIpc(

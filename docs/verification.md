@@ -1,5 +1,17 @@
 # Validation record — 17 November 2026
 
+## Shortcut editor correction (0.0.1)
+
+The shortcut dialog now shows the actual saved value, explicitly focuses the recorder, and offers manual text entry. The host routes the existing registered shortcut to the focused dialog rather than opening the wheel; it never removes the previous registration while recording. Other apps and ordinary launcher invocation retain normal dispatch when Settings is not focused. Cancel restores ordinary dispatch without changing settings. Validated aliases avoid re-registering the same physical shortcut under another spelling. Registration conflicts appear inside the modal, and a successful replacement clears the old error banner.
+
+Types, lint, build and **167 tests in 40 files** passed. `scripts/shortcutSmoke.mjs` exercises typing, recording, validation, a real native registration conflict, retention of the prior key, cancellation, aliases and restart persistence in an isolated profile. Both branded development and private packaged UI checks passed. Native computer-use input delivered the already-registered Ctrl+Alt+Shift+F12 to the packaged dialog, changed Listening to Record keys, and left the launcher hidden. This physical-input delivery check is separate from deterministic unit tests and scripted renderer key events. Native checks require an interactive TTY (`--native-check`); private artifacts remain unsigned and installation on a teammate's PC remains unverified.
+
+## Private team MSI validation
+
+At the owner's explicit request, an unsigned private Windows x64 test MSI now includes the temporary shared credential. It is an extractable-key testing exception; normal packages remain key-free. Artifact and extracted key-bearing files are kept under ignored `out/private-team/`, never in source or the public repository. The in-app test-build notice explains sharing, quota and revocation implications. See `docs/managed-model.md`.
+
+Type checking, lint, build and **163 tests in 39 files** passed. The private builder validated authentication and a strict OpenAI tool call. WiX 3.14.1 and Forge maker-wix 8.0.1 produced the MSI. Administrative extraction returned exit code 0; the extracted app in a fresh profile imported the key into Windows safeStorage, left AI/consent/app scope disabled, reported native driver availability and passed the real ModelProvider connection test after consent in that isolated profile. No desktop content was sent. MSI properties report per-user mode and the expected product/version. Signing, full user installation/upgrade/uninstall on another account/computer, and the autonomous editor-save acceptance workflow remain unverified.
+
 ## Settings choice update
 
 The user's request for real choices replaces the previous single-option visual rows. Activation supports toggle/open-only, icon sizes support 20/24/32 pixels with unchanged 44-pixel targets, menu backgrounds support none/soft/solid, labels support hover/focus or hidden, position supports automatic/above/below with edge fallback, and themes support light/dark/live system preference. Mandatory confirmations are policy text rather than disabled switches. Neutral select pickers, focus rings, selection colors and accents replace Windows blue/purple in normal mode. System high-contrast colors remain available.

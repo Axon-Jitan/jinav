@@ -10,5 +10,7 @@ resources/driver/
 .env
 .env.*
 credential.bin
+team-test-credential.bin
+*.msi
 managed-model.json
 *.pem

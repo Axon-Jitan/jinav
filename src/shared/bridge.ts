@@ -14,6 +14,7 @@ export interface Bootstrap {
   desktopReady?: boolean;
   desktopUnavailable?: boolean;
   modelProvisioned?: boolean;
+  teamTestBuild?: boolean;
 }
 export type Result<T> = { ok: true; value: T } | { ok: false; error: string };
 export interface TooltipContent {
@@ -25,6 +26,8 @@ export interface Bridge {
   discover(): Promise<Result<AppEntry[]>>;
   manualApp(): Promise<Result<AppEntry | null>>;
   saveConfig(config: Config): Promise<Result<string>>;
+  shortcutCapture(enabled: boolean): Promise<Result<void>>;
+  onShortcutRecorded(callback: (shortcut: string) => void): () => void;
   launch(id: string, windowId?: string): Promise<Result<TargetWindow[]>>;
   windows(): Promise<Result<TargetWindow[]>>;
   hide(): Promise<Result<void>>;
@@ -57,6 +60,8 @@ export const channels = {
   discover: "jinav:discover",
   manualApp: "jinav:manualApp",
   saveConfig: "jinav:saveConfig",
+  shortcutCapture: "jinav:shortcutCapture",
+  shortcutRecorded: "jinav:shortcutRecorded",
   launch: "jinav:launch",
   windows: "jinav:windows",
   hide: "jinav:hide",

@@ -18,6 +18,11 @@ export function AskSettings({
   const c = state.config;
   return (
     <>
+      {bootstrap.teamTestBuild && (
+        <p className="notice" role="status">
+          {s.teamTestNotice}
+        </p>
+      )}
       {!bootstrap.modelProvisioned && (
         <p className="hint managed-notice" role="status">
           {s.itSetupPending}

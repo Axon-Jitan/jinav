@@ -15,6 +15,8 @@ npm start -- --settings
 
 New profiles use **Ctrl+Alt+Space**. Existing profiles retain their shortcut, including the earlier Alt+Shift+Space default. The one-time ready notification shows the actual configured shortcut. Conflicts retain the previous working registration and expose Settings through the tray.
 
+**General → Open menu → Change** supports key recording or **Type instead** (for example, `Ctrl+Alt+J`). The current shortcut is shown as an actual value, not an empty placeholder. While the dialog is focused, invoking that registered shortcut records it instead of opening the wheel. The previous registration stays active until a replacement succeeds; conflicts appear inside the dialog. Cancel preserves the saved combination.
+
 Choose any number of real applications in **Settings → Menu → Add app**. Search or use Select shown for bulk selection; neither launcher nor Ask jinav selection has an app-count cap. Extra launcher apps appear on additional compact wheel pages. Click the centre page button, scroll, or use Page Up / Page Down to browse; app order stays fixed. Manual app order is preserved when changing between Selected apps, Recently opened, Frequently used and Currently open. Recent/Frequent use local launch metadata; frequency uses a rolling 30 days. Currently open never fills gaps with closed apps. Clear app-use history is separate from task history.
 
 The wheel has adjustable spacing in **Appearance → Distance from cursor**: 58–110 DIPs from the cursor to icon centres, preserving the existing 60-DIP default. Its diameter is 160–264 DIPs (164 by default), with 24-pixel app icons by default and 44-pixel circular targets. Ask jinav stays at the top and the Settings gear at 4:30. The closest limit preserves separate targets and a neutral centre. No fake cursor or sample app shortcuts are shipped. Apps and spacing freeze for each opening. Arrow keys and Tab navigate; Enter activates; Escape dismisses. Clicking outside dismisses without replaying clicks. Try menu returns to Settings on Escape. Activation prefers the native MRU window; a refused focus request is reported without opening a duplicate.
@@ -25,7 +27,7 @@ Run `node scripts/settingsSmoke.mjs` after building, or add `--packaged` after p
 
 ## Optional Ask jinav
 
-IT supplies the model connection and protected credential; coworkers do not enter API keys or choose a provider. See [IT-managed provisioning](docs/managed-model.md) for the installer configuration contract. No actual MSI or provider credential is supplied by this repository.
+IT supplies the model connection and protected credential; coworkers do not enter API keys or choose a provider. See [IT-managed provisioning](docs/managed-model.md) for the installer configuration contract. The repository contains no credentials. `npm run make:team-msi` produces an explicitly private Windows x64 test MSI using the build owner's existing Windows-protected temporary key. This extractable-key testing mode is described in that guide; ordinary builds remain key-free.
 
 1. In **Settings → Ask jinav**, enable the feature and review the provider disclosure.
 2. Under **Allowed apps**, choose **Selected apps** and pick a list, or explicitly approve **All installed apps** to let jinav choose from supported installed apps for each submitted task. Switching back preserves the selected list. This permission is independent of wheel selections; observation still covers one task app at a time. Desktop permissions are checked before execution; a recovery check is available in Settings.
@@ -59,7 +61,7 @@ Progress provides Pause/Resume and Stop; Escape stops an active task. Resume dis
 | `node scripts/radiusSmoke.mjs --packaged` | Check spacing controls, native menu size, exterior labels, frozen geometry and restart persistence in an isolated profile |
 | `npm audit --omit=dev` | Audit runtime dependencies |
 
-Windows executable: `out/jinav-win32-x64/jinav.exe`. ZIP: `out/make/zip/win32/x64/jinav-win32-x64-0.1.0.zip`. Keep the complete extracted application directory together. This unsigned package is not a production release; signing and IT acceptance remain outstanding. Do not disable OS protections.
+Windows executable: `out/jinav-win32-x64/jinav.exe`. ZIP: `out/make/zip/win32/x64/jinav-win32-x64-0.0.1.zip`. Keep the complete extracted application directory together. This unsigned package is not a production release; signing and IT acceptance remain outstanding. Do not disable OS protections.
 
 ## Platform status
 

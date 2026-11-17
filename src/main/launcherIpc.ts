@@ -23,6 +23,23 @@ export function launcherIpc(
   platform: PlatformAdapter,
   onPermissionsChanged: () => void = () => {},
 ) {
+  register(channels.shortcutCapture, (value) => {
+    const enabled = z.boolean().parse(value);
+    shortcuts.capture = enabled
+      ? (key) => {
+          if (
+            !launcher.settings.window.isVisible() ||
+            !launcher.settings.window.isFocused()
+          )
+            return false;
+          launcher.settings.window.webContents.send(
+            channels.shortcutRecorded,
+            key,
+          );
+          return true;
+        }
+      : undefined;
+  });
   register(channels.discover, async () => catalogue.discover(true));
   register(channels.manualApp, async () => {
     const result = await dialog.showOpenDialog(

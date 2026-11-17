@@ -1,6 +1,8 @@
 // Loads IT-owned model metadata; credentials arrive through protected per-user provisioning.
 // Never accepts an API key in the distributable JSON file.
 import { readFile } from "node:fs/promises";
+import { dirname } from "node:path";
+import { teamTestCredential } from "./teamTestCredential";
 import { z } from "zod";
 import { configSchema } from "../shared/config";
 import type { ConfigStore } from "./configStore";
@@ -11,6 +13,7 @@ const schema = z
     provider: configSchema.shape.provider,
     model: configSchema.shape.model,
     endpoint: configSchema.shape.endpoint,
+    credentialSource: z.enum(["os", "bundled-test"]).default("os"),
   })
   .strict();
 export async function managedModel(
@@ -19,10 +22,18 @@ export async function managedModel(
   path: string,
   environment: Record<string, string | undefined>,
 ) {
-  const credential = environment.JINAV_API_KEY;
+  let credential = environment.JINAV_API_KEY;
   delete environment.JINAV_API_KEY;
   try {
     const model = schema.parse(JSON.parse(await readFile(path, "utf8")));
+    if (model.credentialSource === "bundled-test") {
+      store.teamTestBuild = true;
+      credential ??= await teamTestCredential(
+        dirname(path),
+        model.provider,
+        model.endpoint,
+      );
+    }
     if (
       (store.config.endpoint !== model.endpoint ||
         store.config.provider !== model.provider) &&

@@ -1,0 +1,10 @@
+{
+  "kind": "real-shortcut-editor",
+  "packaged": true,
+  "result": "passed",
+  "nativeKeyDelivery": true,
+  "checks": [
+    "Initial focus/current value, key recording, manual typing, invalid input, inline real-registration conflict, unchanged registration on failure, cancellation and modifier aliases",
+    "Saved shortcut survives restart"
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "name": "jinav",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "Cursor launcher with optional scoped desktop assistance",
   "main": "dist/main/main.js",
   "scripts": {
@@ -15,6 +15,7 @@
     "check": "npm run typecheck && npm run lint && npm test && npm run build",
     "package": "npm run build && electron-forge package",
     "make": "npm run build && electron-forge make",
+    "make:team-msi": "node scripts/teamTestMsi.mjs",
     "test:desktop": "npm run build && node scripts/desktopSmoke.mjs",
     "test:package": "node scripts/packagedSmoke.mjs"
   },
@@ -31,6 +32,7 @@
   },
   "devDependencies": {
     "@electron-forge/cli": "8.0.1",
+    "@electron-forge/maker-wix": "8.0.1",
     "@electron-forge/maker-zip": "8.0.1",
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.65.1",

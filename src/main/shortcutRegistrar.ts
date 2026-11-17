@@ -7,6 +7,7 @@ export class ShortcutRegistrar {
   current = "";
   private latched = false;
   private tracksRelease = false;
+  capture: ((key: string) => boolean) | undefined;
   trackRelease(enabled: boolean) {
     this.tracksRelease = enabled;
     this.latched = false;
@@ -25,6 +26,7 @@ export class ShortcutRegistrar {
         !this.api.register(next, () => {
           if (this.tracksRelease && this.latched) return;
           this.latched = true;
+          if (this.capture?.(next)) return;
           this.callback();
         })
       )

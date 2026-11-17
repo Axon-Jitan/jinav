@@ -11,6 +11,7 @@ export class ConfigStore {
   desktopReady = false;
   desktopUnavailable = false;
   managedModel = false;
+  teamTestBuild = false;
   modelProvisioningBlocked = false;
   isNewProfile = false;
   private writes: Promise<void> = Promise.resolve();
