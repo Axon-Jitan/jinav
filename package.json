@@ -12,12 +12,13 @@
     "lint": "eslint src --max-warnings 0",
     "format": "prettier --write src scripts *.json *.mjs *.cjs",
     "test": "vitest run",
-    "check": "npm run typecheck && npm run lint && npm test && npm run build",
+    "check": "npm run typecheck && npm run lint && npm test && npm run test:installer && npm run build",
     "package": "npm run build && electron-forge package",
     "make": "npm run build && electron-forge make",
     "make:team-msi": "node scripts/teamTestMsi.mjs",
     "test:desktop": "npm run build && node scripts/desktopSmoke.mjs",
-    "test:package": "node scripts/packagedSmoke.mjs"
+    "test:package": "node scripts/packagedSmoke.mjs",
+    "test:installer": "node --test scripts/configurePerUserMsi.test.cjs"
   },
   "keywords": [],
   "author": "",

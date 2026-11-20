@@ -1,5 +1,6 @@
 // Packages the compiled application with native driver resources outside ASAR.
 const { resolve, join, sep } = require("node:path");
+const { configurePerUserMsi } = require("./scripts/configurePerUserMsi.cjs");
 const teamDirectory = process.env.JINAV_TEAM_TEST_DIR
   ? resolve(process.env.JINAV_TEAM_TEST_DIR)
   : undefined;
@@ -103,13 +104,14 @@ module.exports = {
               upgradeCode: "6cfb3ff2-1713-46ad-b501-e3df7fbcabf8",
               defaultInstallMode: "perUser",
               features: false,
-              ui: false,
+              ui: { chooseDirectory: true },
               autoRun: false,
               shortcutFolderName: "jinav team test",
               shortcutName: "jinav (team test)",
-              programFilesFolderName: "jinav Team Test",
+              programFilesFolderName: "jinav",
               icon: resolve(__dirname, "resources/icon.ico"),
               beforeCreate: (creator) => {
+                configurePerUserMsi(creator);
                 creator.wixTemplate = creator.wixTemplate.replace(
                   "{{ApplicationName}} (Machine - MSI)",
                   "{{ApplicationName}} (team test)",

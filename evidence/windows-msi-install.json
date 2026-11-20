@@ -1,0 +1,25 @@
+﻿{
+    "kind":  "real-windows-msi-install",
+    "result":  "passed",
+    "standardUser":  true,
+    "defaultInstall":  true,
+    "repair":  true,
+    "defaultUninstall":  true,
+    "customInstall":  true,
+    "customUninstall":  true,
+    "untrackedFilePreserved":  true,
+    "exitCodes":  {
+                      "default-install":  0,
+                      "custom-install":  0,
+                      "custom-uninstall":  0,
+                      "default-uninstall":  0,
+                      "repair":  0
+                  },
+    "environment":  {
+                        "os":  "Microsoft Windows 11 Business",
+                        "version":  "10.0.26200",
+                        "architecture":  "64-bit"
+                    },
+    "uiAutomation":  "blocked: product policy blocks this app: msiexec.exe",
+    "artifactSha256":  "d8340e83cf7b1b502aaf4f091aabd6bdd63a57e2fc5138be159f6ae713d1e2a1"
+}

@@ -1,5 +1,11 @@
 # Validation record — 17 November 2026
 
+## Populated wheel layout
+
+Removing a configured app now redistributes the remaining visible icons evenly around the circle. Hiding Ask and partial final pages also leave no reserved holes. The shared layout preserves relative app order, the full wheel's utility order, 44-pixel targets, the neutral centre and configured radius. Main-process captions receive a validated page index and use the same layout as the preview and renderer. This explicit user-requested compaction supersedes the earlier fixed eight-position design; pages and ordinary configuration still remain frozen during an open launcher session.
+
+Type checks, lint, build and **170 tests in 41 files** passed. Both `scripts/wheelLayoutSmoke.mjs` and its `--team-package` run removed a real app through Settings, verified even spacing in preview and native menu, restarted to verify persistence, hid Ask, and checked a partially populated last page plus its native Settings caption. No apps were launched or AI enabled during this regression. The Windows app and shared-key test MSI were rebuilt. Source and packaged evidence are recorded separately under `evidence/wheel-layout-*.json`; other operating systems remain untested for this change.
+
 ## Shortcut editor correction (0.0.1)
 
 The shortcut dialog now shows the actual saved value, explicitly focuses the recorder, and offers manual text entry. The host routes the existing registered shortcut to the focused dialog rather than opening the wheel; it never removes the previous registration while recording. Other apps and ordinary launcher invocation retain normal dispatch when Settings is not focused. Cancel restores ordinary dispatch without changing settings. Validated aliases avoid re-registering the same physical shortcut under another spelling. Registration conflicts appear inside the modal, and a successful replacement clears the old error banner.
@@ -8,7 +14,7 @@ Types, lint, build and **167 tests in 40 files** passed. `scripts/shortcutSmoke.
 
 ## Private team MSI validation
 
-At the owner's explicit request, an unsigned private Windows x64 test MSI now includes the temporary shared credential. It is an extractable-key testing exception; normal packages remain key-free. Artifact and extracted key-bearing files are kept under ignored `out/private-team/`, never in source or the public repository. The in-app test-build notice explains sharing, quota and revocation implications. See `docs/managed-model.md`.
+At the owner's explicit request, an unsigned private Windows x64 test MSI now includes the temporary shared credential. It is an extractable-key testing exception; normal packages remain key-free. Finished installers are kept in ignored `out/release/`, with internal packaging and extraction files in ignored `out/private-team/`, never in source or the public repository. Distribution constraints are documented in the engineering provisioning guide. See `docs/managed-model.md`.
 
 Type checking, lint, build and **163 tests in 39 files** passed. The private builder validated authentication and a strict OpenAI tool call. WiX 3.14.1 and Forge maker-wix 8.0.1 produced the MSI. Administrative extraction returned exit code 0; the extracted app in a fresh profile imported the key into Windows safeStorage, left AI/consent/app scope disabled, reported native driver availability and passed the real ModelProvider connection test after consent in that isolated profile. No desktop content was sent. MSI properties report per-user mode and the expected product/version. Signing, full user installation/upgrade/uninstall on another account/computer, and the autonomous editor-save acceptance workflow remain unverified.
 
@@ -171,3 +177,30 @@ Ask jinav now starts without an existing window, offers the model installed app 
 `npm run check` passes **93 tests in 15 files** after this update. Added coverage includes launch approval/refusal, scope validation, window ambiguity, Store-app hosted identities, focus without duplicate activation, native launch timeouts, consent migration, cancellation during discovery, and worker/host launch replies. These are deterministic fake-interface tests, not evidence of model autonomy.
 
 An initial `node scripts/taskLaunchSmoke.mjs` run passed an actual Windows **Calculator activation and fresh window verification** using the new native task-app service. Subsequent runs surfaced multiple Calculator windows; the latest check verifies that the service refuses that ambiguity with **zero additional launches**. Existing Store windows now use the focus-only driver command after the explicit app-opening/focus approval rather than reactivating another instance. The checks use the real Windows catalogue, native activation API, and agent-desktop window inventory, with **no model** and no document edits. Latest evidence: [task-app-launch-smoke.json](../evidence/task-app-launch-smoke.json). Full cloud-model app choice and editor/save acceptance still require configured credentials and remain unverified.
+
+
+## Ask jinav Run recovery ? 17 November 2026
+
+Run activates for a nonempty task. Missing AI, provider, privacy, app-scope, app-name consent, or input-monitoring setup appears as a specific message and Run opens Ask settings. Settings offers Open Ask jinav; the in-memory task draft survives that round trip without being written to disk. All host permission checks remain authoritative. Launcher selections never grant AI access. Cached desktop failures no longer permanently disable the prompt; the host checks current desktop readiness on submission.
+
+`npm run check` passes 176 deterministic tests across 42 files. `node scripts/promptSetupSmoke.mjs` and its `--packaged` and `--team-package` variants passed against the real Windows Electron prompt in a disposable profile: empty/whitespace disabling, typed-goal activation, direct Settings navigation, retained draft, fresh settings on return, and no task dispatch or permission changes during incomplete setup. Use `--packaged` or `--team-package` for packaged variants. These checks do not establish successful model-driven automation; the autonomous editor-save acceptance workflow remains unverified.
+
+
+## Protected-target correction ? 17 November 2026
+
+A real user attempt failed during preflight with ?This target is not supported for automation.? Inspection found that both preflight and per-action policy matched `jinav` and `electron` anywhere in the window title. An approved editor showing `jinav-logo.svg - jinav - Visual Studio Code` was therefore rejected. The shared target predicate now distinguishes protected process identities from document titles. Terminal and sensitive-window title exclusions remain in place, as do actual jinav/Electron process exclusions and all app-scope checks. The context picker omits protected targets, inherited protected context falls back to automatic app selection, and finished runs offer Back to task.
+
+`npm run check` passes 189 deterministic tests across 43 files, including the project-title reproduction, host preflight acceptance, per-action text review, and protected-process rejection. The packaged prompt setup smoke also passes. These tests verify the rejection fix, not arbitrary app automation.
+
+
+The first opt-in real-model Calculator run selected and opened the real app, then correctly failed verification because the model paraphrased its evidence. Completion now supports exact quotes inside decoded JSON strings (including escaped quotes/newlines), receives an explicit copy-exact-text instruction, and has one bounded read-only correction attempt using a fresh scoped snapshot. While correcting, only `complete` or `request-input` is accepted; no further desktop actions are dispatched. False evidence still fails, saved-file checks remain exact, and cancellation before the correction request is covered. `npm run check` passes 195 deterministic tests in 44 files after these changes.
+
+
+`node scripts/modelLaunchSmoke.mjs --real-model` subsequently **passed** in the Windows x64 private team package with the real OpenAI `gpt-4.1-mini` provider, utility-process runner, native app service, and agent-desktop 1.3.1. A disposable profile exposed only installed Calculator to the model; physical input was disabled and the test approved only its exact app-opening request. The model chose `launch-app`, the app was opened/focused, a fresh accessibility snapshot supported completion at step 2, and the native window inventory independently confirmed Calculator. The finished panel's Back to task button returned to the prompt. No controls were typed into, no documents edited, and no personal configuration changed. This proves the model-driven app-launch path; the editor GUI entry/save workflow remains separately unverified. Evidence: [model-app-launch.json](../evidence/model-app-launch.json). This script is opt-in, uses real provider requests, and may incur provider charges; it is excluded from deterministic test suites.
+
+
+## Windows MSI per-user installation ? 20 November 2026
+
+Fixed the MSI's explicit Program Files root while retaining per-user limited privileges. Setup now defaults to LocalAppData/Programs/jinav with optional Change folder controls. Windows Installer component key paths are under HKCU; the selected path is restored for repair/uninstall; custom folders are never recursively purged. `inspectUserMsi.ps1` gates the compiled artifact before publication to the local release folder. Five authoring tests pass, alongside the 195 application tests, type checks, lint, and build.
+
+Actual non-admin default/custom installation, repair, and uninstall passed on Windows 11 Business x64 (10.0.26200), with exit code 0 for each operation and exact preservation of a pre-existing test file. See [Windows installer documentation](windows-installer.md) for evidence and remaining limits, including blocked wizard UI automation and a residual private fixture whose cleanup automatic review rejected. Other accounts and teammate machines remain untested. The MSI is still unsigned, version 0.0.1, private, and deliberately contains the authorized temporary test credential.

@@ -9,6 +9,7 @@ import electron from "electron";
 import { prepareWix } from "./prepareWix.mjs";
 const root = fileURLToPath(new URL("../", import.meta.url)),
   privateRoot = resolve(root, "out/private-team"),
+  releaseRoot = resolve(root, "out/release"),
   staging = join(privateRoot, "provisioning");
 process.chdir(root);
 const run = promisify(execFile);
@@ -73,14 +74,33 @@ try {
     .flatMap((r) => r.artifacts)
     .find((path) => path.endsWith(".msi"));
   if (!source) throw Error("MSI output missing");
+  await run(
+    "powershell.exe",
+    [
+      "-NoProfile",
+      "-NonInteractive",
+      "-File",
+      join(root, "scripts/inspectUserMsi.ps1"),
+      "-MsiPath",
+      source,
+    ],
+    { env, timeout: 30000 },
+  );
   const { version } = JSON.parse(await readFile("package.json", "utf8"));
-  const target = join(privateRoot, `jinav-team-test-${version}-x64.msi`);
+  await mkdir(releaseRoot, { recursive: true });
+  const target = join(releaseRoot, `jinav-${version}.msi`);
   await copyFile(source, target);
   await writeFile(
     target + ".sha256",
     createHash("sha256")
       .update(await readFile(target))
       .digest("hex") + "\n",
+  );
+  await writeFile(
+    join(releaseRoot, "TEAM-TEST-README.txt"),
+    (
+      await readFile(join(root, "resources/team-test-readme.txt"), "utf8")
+    ).replaceAll("{{MSI_FILENAME}}", `jinav-${version}.msi`),
   );
   process.stdout.write(`Private test MSI built: ${target}\n`);
 } finally {
