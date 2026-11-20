@@ -1,6 +1,7 @@
 // Owns the single settings surface; closing it keeps the launcher alive.
 import { BrowserWindow, screen, app } from "electron";
 import { join } from "node:path";
+import { channels, type SettingsPage } from "../shared/bridge";
 import { appIconPath } from "./appIconPath";
 export class SettingsWindow {
   readonly window: BrowserWindow;
@@ -48,13 +49,14 @@ export class SettingsWindow {
     if (command === "close") this.window.hide();
     return { maximized: this.window.isMaximized() };
   }
-  async show() {
+  async show(page: SettingsPage = "menu") {
     if (this.window.isMinimized()) this.window.restore();
     if (this.window.webContents.isLoading())
       await new Promise<void>((resolve) =>
         this.window.webContents.once("did-finish-load", resolve),
       );
     this.window.webContents.send("jinav:view", "settings");
+    this.window.webContents.send(channels.settingsPage, page);
     this.window.show();
     this.window.focus();
   }

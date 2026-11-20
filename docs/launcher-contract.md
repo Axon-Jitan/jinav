@@ -8,7 +8,7 @@ The later Settings request supersedes the fixed visual defaults with persisted c
 
 | Module | Contract |
 | --- | --- |
-| `shared/wheelGeometry.ts`, `renderer/RadialMenu.tsx` | Stable eight angles with bounded adjustable radius; holes remain empty; no initial item focus; no OS work |
+| `shared/wheelGeometry.ts`, `shared/wheelLayout.ts`, `renderer/RadialMenu.tsx` | Evenly populated one-to-eight-icon circles with bounded radius; relative app order retained; no initial item focus or OS work |
 | `main/launcherWindow.ts` | Captured pointer/origin, frozen apps/radius, usable-area clamping and a render-ready session handshake |
 | `main/settingsWindow.ts` | One separate 1040×760-DIP reference window; smaller work areas scroll; closing keeps background service |
 | `main/wheelTooltip.ts` | Separate small mouse-transparent, non-focusable tooltip, clamped independently |

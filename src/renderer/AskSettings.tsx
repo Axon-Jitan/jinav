@@ -18,16 +18,18 @@ export function AskSettings({
   const c = state.config;
   return (
     <>
-      {bootstrap.teamTestBuild && (
-        <p className="notice" role="status">
-          {s.teamTestNotice}
-        </p>
-      )}
       {!bootstrap.modelProvisioned && (
         <p className="hint managed-notice" role="status">
           {s.itSetupPending}
         </p>
       )}
+      <button
+        className="primary"
+        disabled={state.busy}
+        onClick={() => void window.jinav.prompt()}
+      >
+        {s.openAsk}
+      </button>
       <h2 className="section-label">{s.access}</h2>
       <SettingRow title={s.enable}>
         <Toggle
@@ -55,6 +57,19 @@ export function AskSettings({
         </div>
       )}
       <AppAccessControl state={state} />
+      {c.aiEnabled && (
+        <label className="check">
+          <input
+            type="checkbox"
+            checked={c.appCatalogConsent}
+            disabled={state.busy}
+            onChange={(e) =>
+              void state.update({ appCatalogConsent: e.target.checked })
+            }
+          />
+          {s.appCatalogConsent}
+        </label>
+      )}
       <SettingRow title={s.screenAccess} hint={s.taskAppObservationHint}>
         <span>{s.taskAppObservation}</span>
       </SettingRow>

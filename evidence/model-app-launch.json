@@ -1,0 +1,17 @@
+{
+  "kind": "real-model-app-launch",
+  "packaged": true,
+  "result": "passed",
+  "checks": [
+    "real provider chose Calculator from a one-app catalogue",
+    "only exact Calculator launch approved; physical input disabled",
+    "native launch/focus followed by fresh accessibility observation and model completion evidence"
+  ],
+  "model": "gpt-4.1-mini",
+  "modelUsed": true,
+  "launchApproved": true,
+  "finalPhase": "completed",
+  "steps": 2,
+  "nativeWindowVerified": true,
+  "returnToPromptVerified": true
+}

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import type { TargetWindow } from "../shared/task";
 import type { Config } from "../shared/config";
 import { strings as s } from "./strings";
+import { supportsTaskTarget } from "../shared/supportsTaskTarget";
 import { supportsTaskApp } from "../shared/appAccess";
 export function ContextPicker({
   config,
@@ -30,15 +31,17 @@ export function ContextPicker({
       if (!alive) return;
       if (r.ok && apps.ok)
         setWindows(
-          r.value.filter((w) =>
-            apps.value
-              .filter(supportsTaskApp)
-              .some(
-                (e) =>
-                  e.path.split(/[\\/]/).at(-1)?.toLowerCase() ===
-                  w.app.toLowerCase(),
-              ),
-          ),
+          r.value
+            .filter(supportsTaskTarget)
+            .filter((w) =>
+              apps.value
+                .filter(supportsTaskApp)
+                .some(
+                  (e) =>
+                    e.path.split(/[\\/]/).at(-1)?.toLowerCase() ===
+                    w.app.toLowerCase(),
+                ),
+            ),
         );
       else onError(!r.ok ? r.error : !apps.ok ? apps.error : s.noResults);
       setLoading(false);

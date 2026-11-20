@@ -2,39 +2,29 @@
 import { useState } from "react";
 import type { Bootstrap } from "../shared/bridge";
 import { strings as s } from "./strings";
-import type { TargetWindow } from "../shared/task";
+import { usePrompt } from "./usePrompt";
 import { ContextPicker } from "./ContextPicker";
 import { BrandLogo } from "./BrandLogo";
 export function PromptPanel({
   bootstrap,
   onError,
+  goal,
+  onGoalChange,
 }: {
   bootstrap: Bootstrap;
+  goal: string;
+  onGoalChange: (goal: string) => void;
   onError: (message: string) => void;
 }) {
-  const [goal, setGoal] = useState("");
-  const [target, setTarget] = useState<TargetWindow | undefined>(
-    bootstrap.origin,
-  );
   const [picking, setPicking] = useState(false);
   const [output, setOutput] = useState("");
   const c = bootstrap.config;
-  const targetAllowed =
-    !target ||
-    c.appAccess === "all" ||
-    c.allowedApps.some(
-      (e) =>
-        e.path.split(/[\\/]/).at(-1)?.toLowerCase() ===
-        target.app.toLowerCase(),
-    );
-  const ready =
-    c.aiEnabled &&
-    (bootstrap.modelConnected || bootstrap.modelProvisioned) &&
-    !bootstrap.desktopUnavailable &&
-    c.cloudConsent &&
-    (c.appAccess === "all" || c.allowedApps.length > 0) &&
-    targetAllowed &&
-    (!c.pauseOnUserInput || bootstrap.inputMonitoring);
+  const { target, setTarget, starting, issue, settings, submit } = usePrompt(
+    bootstrap,
+    goal,
+    onGoalChange,
+    onError,
+  );
   return (
     <section className="prompt-panel">
       <header className="ask-header">
@@ -49,7 +39,7 @@ export function PromptPanel({
         aria-label={s.prompt}
         placeholder={s.prompt}
         value={goal}
-        onChange={(e) => setGoal(e.target.value)}
+        onChange={(e) => onGoalChange(e.target.value)}
         maxLength={8000}
       />
       <div className="prompt-actions">
@@ -58,33 +48,28 @@ export function PromptPanel({
           title={s.context}
           onClick={() => setPicking(true)}
         >
-          {target?.app ?? s.noContext}
+          {target?.app ?? s.chooseApplicationAutomatically}
         </button>
         <button
           className="primary"
-          disabled={!ready || !goal.trim()}
-          onClick={() =>
-            void window.jinav
-              .startTask({
-                goal,
-                target,
-                verificationFile: output || undefined,
-              })
-              .then((r) => {
-                if (!r.ok) onError(r.error);
-              })
-          }
+          disabled={!goal.trim() || starting}
+          onClick={() => void submit(output)}
         >
-          {s.run}
+          {starting ? s.startingTask : s.run}
         </button>
       </div>
-      {!ready && (
-        <button
-          className="text-button setup-link"
-          onClick={() => void window.jinav.settings()}
-        >
-          {s.setup}
-        </button>
+      {issue && (
+        <div className="prompt-setup">
+          <p className="hint" role="status">
+            {issue}
+          </p>
+          <button
+            className="text-button setup-link"
+            onClick={() => void settings()}
+          >
+            {s.setup}
+          </button>
+        </div>
       )}
       <details className="verification-details">
         <summary>{s.output}</summary>

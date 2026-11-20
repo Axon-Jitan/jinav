@@ -21,13 +21,7 @@ export function SettingsPanel({
     "menu",
   );
   const state = useSettings(bootstrap.config, onSaved, onError);
-  useEffect(
-    () =>
-      window.jinav.onView((view) => {
-        if (view === "settings") setPage("menu");
-      }),
-    [],
-  );
+  useEffect(() => window.jinav.onSettingsPage(setPage), []);
   const titles = {
     menu: s.menu,
     general: s.general,

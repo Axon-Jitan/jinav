@@ -1,4 +1,5 @@
 // Enforces fresh scoped references with conservative sensitive-action detection.
+import { supportsTaskTarget } from "../shared/supportsTaskTarget";
 import type { Action, TargetWindow } from "../shared/task";
 import type { Observation } from "../desktop/desktopDriver";
 const sensitive =
@@ -9,11 +10,7 @@ export function actionPolicy(
   target: TargetWindow,
   physical: boolean,
 ): { approval?: string } {
-  if (
-    /jinav|electron|powershell|cmd\.exe|terminal|credential|password|security|lockapp/i.test(
-      target.app + " " + target.title,
-    )
-  )
+  if (!supportsTaskTarget(target))
     throw Error("This application is outside supported automation scope.");
   if ("ref" in action && !observation.refs.has(action.ref))
     throw Error(

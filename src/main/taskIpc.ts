@@ -1,4 +1,5 @@
 // Registers explicit task entry points; never observes when the launcher opens.
+import { supportsTaskTarget } from "../shared/supportsTaskTarget";
 import { dialog, globalShortcut } from "electron";
 import { basename } from "node:path";
 import { randomUUID } from "node:crypto";
@@ -225,12 +226,10 @@ export function taskIpc(
           throw Error(
             "Selected window is no longer available. Refresh the context.",
           );
-        if (
-          /jinav|electron|powershell|cmd\.exe|terminal|credential|password|security|lockapp/i.test(
-            target.app + " " + target.title,
-          )
-        )
-          throw Error("This target is not supported for automation.");
+        if (!supportsTaskTarget(target))
+          throw Error(
+            "This application or window is protected from automation. Return to Ask jinav and choose another window, or let jinav choose and open an app.",
+          );
         request.target = {
           ...target,
           id:

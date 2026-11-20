@@ -1,0 +1,11 @@
+{
+  "kind": "real-prompt-setup",
+  "packaged": false,
+  "result": "passed",
+  "checks": [
+    "empty/whitespace goal disables Run; typed goal enables Run",
+    "Run routes incomplete setup directly to Ask settings without granting permissions or starting a task",
+    "typed task survives settings and prompt reopening",
+    "fresh setup metadata reflected on return; no desktop/model task dispatched"
+  ]
+}

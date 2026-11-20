@@ -280,3 +280,52 @@ it("does not allow UI actions before an app has been selected", async () => {
   expect(f.driver.execute).not.toHaveBeenCalled();
   expect(f.states.at(-1)?.message).toContain("Open an application");
 });
+
+it("recovers once from paraphrased completion with fresh read-only observation", async () => {
+  const f = fixture([
+    { kind: "complete", evidence: "The checklist is ready" },
+    { kind: "complete", evidence: "checklist" },
+  ]);
+  await f.runner.run(options, new AbortController().signal);
+  expect(f.driver.observe).toHaveBeenCalledTimes(2);
+  expect(f.driver.execute).not.toHaveBeenCalled();
+  expect(f.states.at(-1)?.phase).toBe("completed");
+});
+it("never dispatches another desktop action while correcting completion", async () => {
+  const f = fixture([
+    { kind: "complete", evidence: "The checklist is ready" },
+    write,
+  ]);
+  await f.runner.run(options, new AbortController().signal);
+  expect(f.driver.execute).not.toHaveBeenCalled();
+  expect(f.states.at(-1)?.phase).toBe("failed");
+  expect(f.states.at(-1)?.message).toContain("No additional desktop actions");
+});
+it("bounds completion correction without accepting repeated fabricated evidence", async () => {
+  const f = fixture([
+    { kind: "complete", evidence: "made up" },
+    { kind: "complete", evidence: "made up" },
+  ]);
+  await f.runner.run(options, new AbortController().signal);
+  expect(f.model.next).toHaveBeenCalledTimes(2);
+  expect(f.driver.execute).not.toHaveBeenCalled();
+  expect(f.states.at(-1)?.phase).toBe("failed");
+  expect(f.states.at(-1)?.message).toContain("Completion evidence is absent");
+});
+it("cancels verification correction before another model request", async () => {
+  const f = fixture([{ kind: "complete", evidence: "made up" }]);
+  const controller = new AbortController();
+  vi.mocked(f.driver.observe)
+    .mockImplementationOnce(async () => ({
+      text: "checklist",
+      refs: new Set(),
+    }))
+    .mockImplementationOnce(async () => {
+      controller.abort();
+      return { text: "checklist", refs: new Set() };
+    });
+  await f.runner.run(options, controller.signal);
+  expect(f.model.next).toHaveBeenCalledOnce();
+  expect(f.driver.execute).not.toHaveBeenCalled();
+  expect(f.states.at(-1)?.phase).toBe("cancelled");
+});

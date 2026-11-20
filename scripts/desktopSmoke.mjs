@@ -419,7 +419,7 @@ try {
     await wheel
       .getByRole("button", { name: "Settings", exact: true })
       .evaluate((e) => e.style.left),
-  ).toBe("124.426px");
+  ).toBe("108.033px");
   await wheel.keyboard.press("Escape");
   await settings
     .getByRole("checkbox", { name: "Show Ask jinav", exact: true })
@@ -449,7 +449,7 @@ try {
     reversed[0].name,
   );
   evidence.checks.push(
-    "Ask visibility leaves reserved hole; manual order persists; session app list stays frozen during preference changes",
+    "Ask visibility compacts the wheel; manual order persists; session app list stays frozen during preference changes",
   );
   await source(settings, "running");
   await expect(
@@ -578,7 +578,7 @@ try {
   expect(connection.ok).toBe(false);
   expect(connection.error).toContain("unconfigured");
   evidence.checks.push(
-    "Ask opens compact prompt without model; Run stays disabled; real unconfigured provider failure",
+    "Ask opens compact prompt without model; empty goal disables Run; real unconfigured provider failure",
   );
   const beforeWindows = await settings.evaluate(() => window.jinav.windows());
   const notepad = selected.find((e) => /notepad/i.test(e.name));

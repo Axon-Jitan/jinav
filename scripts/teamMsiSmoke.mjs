@@ -83,7 +83,7 @@ try {
     .getByRole("navigation")
     .getByRole("button", { name: "Ask jinav", exact: true })
     .click();
-  await expect(settings.getByText(/Team test build/)).toBeVisible();
+  await expect(settings.getByText(/Team test build/)).toHaveCount(0);
   const permissions = await settings.evaluate(() =>
     window.jinav.driverStatus(),
   );

@@ -1,4 +1,5 @@
 // Orchestrates one bounded observe-act-verify run; never executes arbitrary commands.
+import { observationEvidence } from "./observationEvidence";
 import { readFile, stat } from "node:fs/promises";
 import type { DesktopDriver, Observation } from "../desktop/desktopDriver";
 import type { ModelProvider } from "../ai/modelProvider";
@@ -51,6 +52,7 @@ export class TaskRunner {
         application: target?.app,
       });
     const history: string[] = [];
+    let correctingCompletion = false;
     let tokens = 0,
       repeated = 0,
       previous = "";
@@ -110,6 +112,14 @@ export class TaskRunner {
           continue;
         }
         const action = actionSchema.parse(response.action);
+        if (
+          correctingCompletion &&
+          action.kind !== "complete" &&
+          action.kind !== "request-input"
+        )
+          throw Error(
+            "Completion could not be verified. No additional desktop actions were dispatched.",
+          );
         const fingerprint = JSON.stringify({
           ...action,
           ...("reason" in action ? { reason: "" } : {}),
@@ -166,10 +176,19 @@ export class TaskRunner {
         }
         if (action.kind === "complete") {
           if (!target) throw Error("No application window has been verified.");
-          if (!last.text.includes(action.evidence))
-            throw Error(
-              "Completion evidence is absent from the current observation.",
+          if (!observationEvidence(last.text, action.evidence)) {
+            if (correctingCompletion)
+              throw Error(
+                "Completion evidence is absent from the current observation.",
+              );
+            correctingCompletion = true;
+            history.push(
+              "Completion was rejected: evidence must be an exact contiguous quote from a string in the latest UI_CONTENT, not a summary or claim. A fresh observation follows. Return corrected complete evidence or request-input only; do not repeat actions.",
             );
+            last = await observe(target);
+            active.throwIfAborted();
+            continue;
+          }
           if (options.verificationFile) {
             if (action.expectedText === undefined)
               throw Error(

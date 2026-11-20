@@ -1,6 +1,23 @@
 // Owns user-facing UI vocabulary.
 export const strings = {
   name: "jinav",
+  backToTask: "Back to task",
+  setupUnsupportedTarget:
+    "This window is protected from automation. Choose another context or let jinav choose and open an app.",
+  openAsk: "Open Ask jinav",
+  startingTask: "Starting?",
+  setupEnable: "Enable Ask jinav in Settings to run this task.",
+  setupModel: "Your model connection is not configured. Contact your IT team.",
+  setupConsent:
+    "Review and accept the provider privacy notice in Ask jinav Settings.",
+  setupApps:
+    "Choose the apps Ask jinav may use. Your launcher icons do not grant AI access.",
+  setupCatalog:
+    "Allow app names to be sent to the provider so jinav can choose an app.",
+  setupTarget:
+    "This window is outside your allowed apps. Choose another context or update Allowed apps.",
+  setupMonitoring:
+    "Input monitoring is unavailable. Check desktop permissions, or turn off Pause on user input in Settings.",
   minimize: "Minimize",
   maximize: "Maximize",
   restoreWindow: "Restore window",
@@ -119,8 +136,6 @@ export const strings = {
   darkTheme: "Dark",
   alwaysRequired: "Always required",
   settingsSaveError: "Settings could not be saved. Please try again.",
-  teamTestNotice:
-    "Team test build · Uses a shared test API key. Anyone with the installer can extract it. Provider charges apply to the shared account; access ends when the key is revoked. Only use approved test data.",
   toggleStyle: "Press to toggle",
   startup: "Startup",
   launchSignIn: "Launch when I sign in",
@@ -223,7 +238,7 @@ export const strings = {
     "App launch approval allows bringing that app to the front. Physical typing requires this additional permission. Keep the target window unchanged. Coordinates and unrestricted keys are not exposed.",
   model: "Model ID",
   endpoint: "Anthropic Messages-compatible endpoint",
-  key: "Provider API key",
+  key: "Service access details",
   saveKey: "Store credential",
   keyHint:
     "Credentials are stored separately using OS encryption. If unavailable, they remain session-only. Leave blank and choose Store credential to remove a saved key.",

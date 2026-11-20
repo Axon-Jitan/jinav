@@ -8,6 +8,32 @@ import {
   DEFAULT_WHEEL_RADIUS,
 } from "./wheelGeometry";
 import { configSchema, defaultConfig } from "./config";
+it("keeps partial circles within bounds with 44-pixel targets and a neutral centre", () => {
+  for (const radius of [
+    MIN_WHEEL_RADIUS,
+    DEFAULT_WHEEL_RADIUS,
+    MAX_WHEEL_RADIUS,
+  ])
+    for (let count = 1; count <= 8; count++) {
+      const layout = wheelGeometry(radius, count);
+      expect(layout.positions).toHaveLength(count);
+      for (const [index, point] of layout.positions.entries()) {
+        for (const coordinate of point) {
+          expect(coordinate - WHEEL_TARGET_SIZE / 2).toBeGreaterThanOrEqual(0);
+          expect(coordinate + WHEEL_TARGET_SIZE / 2).toBeLessThanOrEqual(
+            layout.size,
+          );
+        }
+        if (count > 1) {
+          const next = layout.positions[(index + 1) % count];
+          if (!next) throw Error("Missing neighbour");
+          expect(
+            Math.hypot(point[0] - next[0], point[1] - next[1]),
+          ).toBeGreaterThanOrEqual(WHEEL_TARGET_SIZE);
+        }
+      }
+    }
+});
 it("keeps eight 44-pixel targets separate at every supported radius", () => {
   for (let radius = MIN_WHEEL_RADIUS; radius <= MAX_WHEEL_RADIUS; radius++) {
     const layout = wheelGeometry(radius);

@@ -175,7 +175,14 @@ export function launcherIpc(
     if (launcher.settings.window.isFocused()) launcher.settings.window.hide();
     else launcher.dismiss();
   });
-  register(channels.settings, () => launcher.show("settings"));
+  register(channels.settings, (value) =>
+    launcher.showSettings(
+      z
+        .enum(["menu", "general", "appearance", "ask"])
+        .default("menu")
+        .parse(value),
+    ),
+  );
   register(channels.settingsWindow, (value) =>
     launcher.settings.control(
       z.enum(["state", "minimize", "maximize", "close"]).parse(value),
@@ -184,10 +191,20 @@ export function launcherIpc(
   register(channels.viewReady, (value) =>
     launcher.viewReady(z.string().uuid().parse(value)),
   );
-  register(channels.prompt, () => launcher.show("prompt"));
+  register(channels.prompt, () => {
+    launcher.settings.window.hide();
+    return launcher.show("prompt");
+  });
   register(channels.tryMenu, () => launcher.tryMenu());
-  register(channels.tooltip, (value) =>
-    launcher.label(z.string().max(2048).nullable().parse(value)),
-  );
+  register(channels.tooltip, (value) => {
+    const { id, page } = z
+      .object({
+        id: z.string().max(2048).nullable(),
+        page: z.number().int().min(0).max(1000000),
+      })
+      .strict()
+      .parse(value);
+    launcher.label(id, page);
+  });
   register(channels.wheelApps, () => launcher.resolveApps());
 }

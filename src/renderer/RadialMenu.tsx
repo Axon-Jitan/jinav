@@ -1,7 +1,7 @@
-// Renders the fixed compact wheel; explicit activation is required.
+// Renders a populated compact wheel; explicit activation is required.
 import { useEffect, useRef, useState } from "react";
 import type { AppEntry, Config } from "../shared/config";
-import { wheelGeometry, applicationPositions } from "../shared/wheelGeometry";
+import { wheelLayout } from "../shared/wheelLayout";
 import { strings as s } from "./strings";
 import gear from "./assets/settings.svg";
 import { BrandLogo } from "./BrandLogo";
@@ -32,29 +32,35 @@ export function RadialMenu({
     setPage((paging.page + direction + paging.count) % paging.count);
     if (!preview) root.current?.focus();
   };
-  const geometry = wheelGeometry(radius);
+  const geometry = wheelLayout(paging.apps, config.showAsk, radius);
   useEffect(() => {
     if (!preview)
       void window.jinav.tooltip(
         config.appNames === "hidden" ? null : (active ?? null),
+        paging.page,
       );
     return () => {
       if (!preview) void window.jinav.tooltip(null);
     };
-  }, [active, preview, config.appNames]);
+  }, [active, preview, config.appNames, paging.page]);
   useEffect(() => {
     if (!preview) root.current?.focus();
   }, [preview]);
-  const entries = [
-    ...(config.showAsk
-      ? [{ id: "ask", name: s.ask, position: 0, icon: undefined }]
-      : []),
-    ...paging.apps.map((entry, index) => ({
-      ...entry,
-      position: applicationPositions[index] ?? 1,
-    })),
-    { id: "settings", name: s.settings, position: 3, icon: gear },
-  ].sort((a, b) => a.position - b.position);
+  const entries = geometry.entries.map((entry) => ({
+    ...entry,
+    name:
+      entry.kind === "app"
+        ? entry.app.name
+        : entry.kind === "ask"
+          ? s.ask
+          : s.settings,
+    icon:
+      entry.kind === "app"
+        ? entry.app.icon
+        : entry.kind === "settings"
+          ? gear
+          : undefined,
+  }));
   const navigate = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.repeat) {
       event.preventDefault();
@@ -128,12 +134,11 @@ export function RadialMenu({
       tabIndex={-1}
     >
       {entries.map((entry) => {
-        const point = geometry.positions[entry.position];
-        if (!point) return null;
+        const point = entry.point;
         return (
           <button
-            key={entry.id}
-            className={`slot ${entry.id === "ask" ? "ask-slot" : ""}`}
+            key={`${entry.kind}:${entry.id}`}
+            className={`slot ${entry.kind === "ask" ? "ask-slot" : ""}`}
             style={{ left: point[0], top: point[1] }}
             aria-label={entry.name}
             tabIndex={preview ? -1 : 0}
@@ -143,18 +148,18 @@ export function RadialMenu({
             onBlur={() => setActive(undefined)}
             onClick={() => {
               if (preview) return;
-              if (entry.id === "ask") ask();
-              else if (entry.id === "settings") void window.jinav.settings();
+              if (entry.kind === "ask") ask();
+              else if (entry.kind === "settings") void window.jinav.settings();
               else launch(entry.id);
             }}
           >
-            {entry.id === "ask" ? (
+            {entry.kind === "ask" ? (
               <BrandLogo />
             ) : entry.icon ? (
               <img
                 src={entry.icon}
                 alt=""
-                className={entry.id === "settings" ? "gear" : ""}
+                className={entry.kind === "settings" ? "gear" : ""}
               />
             ) : (
               <span className="app-fallback" aria-hidden="true">
@@ -169,7 +174,7 @@ export function RadialMenu({
         entries
           .filter((entry) => entry.id === active)
           .map((entry) => {
-            const point = geometry.positions[entry.position];
+            const point = entry.point;
             return point ? (
               <PreviewLabel
                 key={entry.id}

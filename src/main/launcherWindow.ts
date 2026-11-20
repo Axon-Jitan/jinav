@@ -19,8 +19,9 @@ import {
   wheelGeometry,
   WHEEL_SIZE,
   DEFAULT_WHEEL_RADIUS,
-  applicationPositions,
 } from "../shared/wheelGeometry";
+import { wheelLayout } from "../shared/wheelLayout";
+import { wheelPages } from "../shared/wheelPages";
 export class LauncherWindow {
   readonly window: BrowserWindow;
   readonly settings: SettingsWindow;
@@ -33,12 +34,14 @@ export class LauncherWindow {
   resolveRadius: () => number = () => DEFAULT_WHEEL_RADIUS;
   resolvePreferences: () => Pick<
     Config,
-    "activationStyle" | "appNames" | "labelPosition"
+    "activationStyle" | "appNames" | "labelPosition" | "showAsk"
   > = () => ({
     activationStyle: "toggle",
     appNames: "hover",
     labelPosition: "auto",
+    showAsk: true,
   });
+  private wheelShowAsk = true;
   private geometry = wheelGeometry();
   get wheelRadius() {
     return this.geometry.radius;
@@ -95,13 +98,17 @@ export class LauncherWindow {
     });
     void this.window.loadFile(join(__dirname, "../renderer/index.html"));
   }
+  async showSettings(page: import("../shared/bridge").SettingsPage = "menu") {
+    this.returnToSettings = false;
+    this.tooltip.window.hide();
+    this.window.hide();
+    await this.settings.show(page);
+  }
   async show(mode = "menu") {
     if (mode === "menu" && this.taskActive()) mode = "progress";
     this.tooltip.window.hide();
     if (mode === "settings") {
-      this.returnToSettings = false;
-      this.window.hide();
-      await this.settings.show();
+      await this.showSettings();
       return;
     }
     if (this.opening) return;
@@ -127,12 +134,12 @@ export class LauncherWindow {
           this.origin = undefined;
         }
         this.wheelApps = structuredClone(await this.resolveApps());
+        this.wheelShowAsk = this.resolvePreferences().showAsk;
         this.geometry = wheelGeometry(this.resolveRadius());
       }
       this.mode = mode;
       const width = mode === "menu" ? this.geometry.size : 360;
-      const height =
-        mode === "menu" ? this.geometry.size : mode === "prompt" ? 280 : 380;
+      const height = mode === "menu" ? this.geometry.size : 380;
       const bounds = menuBounds(this.anchor, area, width);
       bounds.height = Math.min(height, area.height);
       bounds.y = Math.max(
@@ -192,7 +199,7 @@ export class LauncherWindow {
       throw error;
     }
   }
-  label(id: string | null) {
+  label(id: string | null, page = 0) {
     this.tooltip.window.hide();
     if (
       !id ||
@@ -201,22 +208,20 @@ export class LauncherWindow {
       this.resolvePreferences().appNames === "hidden"
     )
       return;
-    const index = this.wheelApps.findIndex((e) => e.id === id);
-    const position =
-      id === "ask"
-        ? 0
-        : id === "settings"
-          ? 3
-          : applicationPositions[index % applicationPositions.length];
+    const apps = wheelPages(this.wheelApps, page).apps;
+    const entry = wheelLayout(
+      apps,
+      this.wheelShowAsk,
+      this.geometry.radius,
+    ).entries.find((entry) => entry.id === id);
+    if (!entry) return;
     const name =
-      id === "ask"
-        ? "Ask jinav"
-        : id === "settings"
-          ? "Settings"
-          : this.wheelApps[index]?.name;
-    const point =
-      position === undefined ? undefined : this.geometry.positions[position];
-    if (!point || !name) return;
+      entry.kind === "app"
+        ? entry.app.name
+        : entry.kind === "ask"
+          ? "Ask jinav"
+          : "Settings";
+    const point = entry.point;
     const bounds = this.window.getBounds();
     this.tooltip.show(
       name,

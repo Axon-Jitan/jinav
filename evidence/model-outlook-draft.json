@@ -1,0 +1,9 @@
+{
+  "kind": "real-model-outlook-draft",
+  "packaged": true,
+  "result": "cancelled",
+  "modelUsed": false,
+  "checks": [],
+  "stage": "startup",
+  "reason": "The user stopped the test before task engine execution. Email drafting and sending remain unverified."
+}

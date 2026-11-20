@@ -1,8 +1,8 @@
 // Splits a frozen app list into reachable wheel pages without limiting saved apps.
 import type { AppEntry } from "./config";
-import { applicationPositions } from "./wheelGeometry";
+import { WHEEL_PAGE_SIZE } from "./wheelGeometry";
 export function wheelPages(apps: readonly AppEntry[], requested: number) {
-  const pageSize = applicationPositions.length,
+  const pageSize = WHEEL_PAGE_SIZE,
     count = Math.max(1, Math.ceil(apps.length / pageSize));
   const page = Math.max(
     0,

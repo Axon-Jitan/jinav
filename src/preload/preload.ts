@@ -1,6 +1,11 @@
 // Exposes named renderer capabilities without leaking Electron primitives.
 import { contextBridge, ipcRenderer } from "electron";
-import { channels, type Bridge, type TooltipContent } from "../shared/bridge";
+import {
+  channels,
+  type Bridge,
+  type SettingsPage,
+  type TooltipContent,
+} from "../shared/bridge";
 import type { TaskState } from "../shared/task";
 const bridge: Bridge = {
   bootstrap: () => ipcRenderer.invoke(channels.bootstrap),
@@ -20,7 +25,13 @@ const bridge: Bridge = {
     ipcRenderer.invoke(channels.launch, { id, windowId }),
   windows: () => ipcRenderer.invoke(channels.windows),
   hide: () => ipcRenderer.invoke(channels.hide),
-  settings: () => ipcRenderer.invoke(channels.settings),
+  settings: (page) => ipcRenderer.invoke(channels.settings, page),
+  onSettingsPage: (callback) => {
+    const listener = (_event: Electron.IpcRendererEvent, page: SettingsPage) =>
+      callback(page);
+    ipcRenderer.on(channels.settingsPage, listener);
+    return () => ipcRenderer.removeListener(channels.settingsPage, listener);
+  },
   settingsWindow: (command) =>
     ipcRenderer.invoke(channels.settingsWindow, command),
   prompt: () => ipcRenderer.invoke(channels.prompt),
@@ -28,7 +39,7 @@ const bridge: Bridge = {
   wheelApps: () => ipcRenderer.invoke(channels.wheelApps),
   clearAppHistory: () => ipcRenderer.invoke(channels.clearAppHistory),
   pauseTask: (paused) => ipcRenderer.invoke(channels.pauseTask, paused),
-  tooltip: (id) => ipcRenderer.invoke(channels.tooltip, id),
+  tooltip: (id, page = 0) => ipcRenderer.invoke(channels.tooltip, { id, page }),
   onTooltip: (callback) => {
     const listener = (
       _event: Electron.IpcRendererEvent,

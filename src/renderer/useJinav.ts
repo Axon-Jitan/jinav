@@ -7,6 +7,7 @@ export function useJinav() {
   const [view, setView] = useState(
     new URLSearchParams(location.search).get("view") ?? "menu",
   );
+  const [draft, setDraft] = useState("");
   const [error, setError] = useState("");
   const [session, setSession] = useState("");
   const [task, setTask] = useState<TaskState>({
@@ -82,6 +83,8 @@ export function useJinav() {
   };
   return {
     bootstrap,
+    draft,
+    setDraft,
     session,
     view,
     setView,

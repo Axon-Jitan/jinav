@@ -1,6 +1,7 @@
 // Specifies the renderer's named capabilities; exposes no generic IPC.
 import type { AppEntry, Config } from "./config";
 import type { TargetWindow, TaskRequest, TaskState } from "./task";
+export type SettingsPage = "menu" | "general" | "appearance" | "ask";
 export interface Bootstrap {
   config: Config;
   notice: string;
@@ -31,7 +32,8 @@ export interface Bridge {
   launch(id: string, windowId?: string): Promise<Result<TargetWindow[]>>;
   windows(): Promise<Result<TargetWindow[]>>;
   hide(): Promise<Result<void>>;
-  settings(): Promise<Result<void>>;
+  settings(page?: SettingsPage): Promise<Result<void>>;
+  onSettingsPage(callback: (page: SettingsPage) => void): () => void;
   settingsWindow(
     command: "state" | "minimize" | "maximize" | "close",
   ): Promise<Result<{ maximized: boolean }>>;
@@ -40,7 +42,7 @@ export interface Bridge {
   wheelApps(): Promise<Result<AppEntry[]>>;
   clearAppHistory(): Promise<Result<void>>;
   pauseTask(paused: boolean): Promise<Result<void>>;
-  tooltip(id: string | null): Promise<Result<void>>;
+  tooltip(id: string | null, page?: number): Promise<Result<void>>;
   onTooltip(callback: (content: TooltipContent) => void): () => void;
   saveKey(key: string): Promise<Result<string>>;
   testModel(): Promise<Result<string>>;
@@ -66,6 +68,7 @@ export const channels = {
   windows: "jinav:windows",
   hide: "jinav:hide",
   settings: "jinav:settings",
+  settingsPage: "jinav:settingsPage",
   settingsWindow: "jinav:settingsWindow",
   prompt: "jinav:prompt",
   tryMenu: "jinav:tryMenu",

@@ -61,6 +61,18 @@ export function ProgressPanel({
           {task.phase === "paused" ? s.resume : s.pause}
         </button>
       )}
+      {!active && (
+        <button
+          className="primary"
+          onClick={() =>
+            void window.jinav.prompt().then((r) => {
+              if (!r.ok) onError(r.error);
+            })
+          }
+        >
+          {s.backToTask}
+        </button>
+      )}
       <p className="hint">{s.stopHint}</p>
     </section>
   );

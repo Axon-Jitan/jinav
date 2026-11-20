@@ -1,0 +1,9 @@
+{
+  "kind": "real-wheel-reflow",
+  "packaged": false,
+  "result": "passed",
+  "checks": [
+    "Removing a real app evenly reflows seven remaining icons in preview and native menu; selected order and removal persist after restart",
+    "Hiding Ask leaves no reserved hole; partial final pages reflow to three icons and native Settings caption follows the new page geometry"
+  ]
+}

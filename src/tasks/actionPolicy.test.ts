@@ -70,3 +70,22 @@ it("denies terminal scope", () =>
       true,
     ),
   ).toThrow("scope"));
+
+it("allows a jinav-named document without bypassing text review", () => {
+  const result = actionPolicy(
+    {
+      kind: "set-value",
+      ref: "@fresh:e1",
+      text: "Checklist",
+      reason: "Write notes",
+    },
+    observation,
+    {
+      id: "w-2",
+      app: "Code.exe",
+      title: "jinav-logo.svg - jinav - Visual Studio Code",
+    },
+    false,
+  );
+  expect(result.approval).toContain("Review text entry");
+});

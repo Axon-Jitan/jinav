@@ -308,3 +308,31 @@ it("starts automatic app selection without requiring an existing window", async 
     expect.any(TaskApplications),
   );
 });
+
+it("accepts a supported editor whose fresh title contains jinav", async () => {
+  const f = fixture();
+  const editor = { ...target, title: "jinav-checklist.txt - Notepad" };
+  vi.mocked(f.platform.windows).mockResolvedValue([editor]);
+  await f.invoke(channels.startTask, {
+    goal: "Use this editor",
+    target: editor,
+  });
+  expect(f.host.start).toHaveBeenCalled();
+});
+it("still rejects the actual jinav process after fresh window validation", async () => {
+  const f = fixture();
+  const protectedWindow = { ...target, app: "jinav.exe", title: "Untitled" };
+  f.store.config.allowedApps.push({
+    id: "self",
+    name: "jinav",
+    path: "C:/jinav.exe",
+  });
+  vi.mocked(f.platform.windows).mockResolvedValue([protectedWindow]);
+  await expect(
+    f.invoke(channels.startTask, {
+      goal: "Use this window",
+      target: protectedWindow,
+    }),
+  ).rejects.toThrow("protected from automation");
+  expect(f.host.start).not.toHaveBeenCalled();
+});

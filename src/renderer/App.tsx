@@ -65,7 +65,12 @@ export function App() {
           onError={state.setError}
         />
       ) : state.view === "prompt" ? (
-        <PromptPanel bootstrap={state.bootstrap} onError={state.setError} />
+        <PromptPanel
+          bootstrap={state.bootstrap}
+          goal={state.draft}
+          onGoalChange={state.setDraft}
+          onError={state.setError}
+        />
       ) : state.view === "progress" ? (
         <ProgressPanel
           task={state.task}
